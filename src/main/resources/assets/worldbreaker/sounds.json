@@ -1,0 +1,32 @@
+{
+  "tomahawk_dash": {
+    "subtitle": "sounds.worldbreaker.tomahawk_dash",
+    "sounds": [
+      "worldbreaker:tomahawk_dash"
+    ]
+},
+  "railcannon_lock_on": {
+    "subtitle": "sounds.worldbreaker.lock_on",
+    "sounds": [
+      "worldbreaker:railcannon_lock_on"
+    ]
+  },
+  "skybeam_hit": {
+    "subtitle": "sounds.worldbreaker.skybeam_hit",
+    "sounds": [
+      "worldbreaker:skybeam_hit"
+    ]
+  },
+  "cannon_fire_loop": {
+    "subtitle": "sounds.worldbreaker.cannon_fire_loop",
+    "sounds": [
+      "worldbreaker:cannon_fire_loop"
+    ]
+  },
+  "worldbreaker_shockwave": {
+    "subtitle": "sounds.worldbreaker.worldbreaker_shockwave",
+    "sounds": [
+      "worldbreaker:worldbreaker_shockwave"
+    ]
+  }
+}

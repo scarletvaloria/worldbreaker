@@ -1,0 +1,17 @@
+{
+	"required": true,
+	"package": "net.scarletvaloria.worldbreaker.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+	],
+  "client": [
+    "ItemRendererMixin",
+    "ModelLoaderMixin"
+  ],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

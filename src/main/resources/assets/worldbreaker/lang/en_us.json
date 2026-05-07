@@ -1,0 +1,21 @@
+{
+  "item.worldbreaker.worldbreaker_engine": "Worldbreaker Engine",
+  "item.worldbreaker.worldbreaker_helmet": "Worldbreaker Helmet",
+  "item.worldbreaker.worldbreaker_chestplate": "Worldbreaker Chestplate",
+  "item.worldbreaker.worldbreaker_leggings": "Worldbreaker Leggings",
+  "item.worldbreaker.worldbreaker_boots": "Worldbreaker Boots",
+  "item.worldbreaker.tomahawk": "Compressed Energy Tomahawk",
+  "item.worldbreaker.amwd": "AMWD",
+  "item.worldbreaker.worldbreaker_cannon": "Worldbreaker Cannon",
+  "sounds.worldbreaker.tomahawk_dash": "Tomahawk dashes",
+  "sounds.worldbreaker.worldbreaker_shockwave": "Shockwave",
+  "death.attack.shockwave_damage": "%1$s was blown away",
+  "death.attack.shockwave_damage.player": "%1$s was blown away by %2$s",
+  "death.attack.laser_damage": "%1$s was vaporized",
+  "death.attack.laser_damage.player": "%1$s was vaporized by %2$s",
+  "death.attack.skybeam_damage": "%1$s was disintegrated",
+  "death.attack.skybeam_damage.player": "%1$s was disintegrated by %2$s",
+  "sounds.worldbreaker.lock_on": "Railcannon locks on",
+  "sounds.worldbreaker.cannon_fire_loop": "Railcannon Laser fires",
+  "sounds.worldbreaker.skybeam_hit": "Skybeam hits"
+}

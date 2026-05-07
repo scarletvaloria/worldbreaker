@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "worldbreaker",
+  "version": "${version}",
+  "name": "Worldbreaker Protocol",
+  "description": "Long Live Kulvaria.",
+  "authors": [
+    "netvision/Scarlet V."
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/worldbreaker/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.scarletvaloria.worldbreaker.WorldbreakerProtocol"
+    ]
+  },
+    "client": [
+      "net.scarletvaloria.worldbreaker.WorldbreakerProtocolClient"
+    ],
+    "fabric-datagen": [
+      "net.scarletvaloria.worldbreaker.WorldbreakerProtocolDataGenerator"
+    ],
+    "mixins": [
+      "worldbreaker.mixins.json"
+    ],
+    "depends": {
+      "fabricloader": ">=0.19.2",
+      "minecraft": "~1.21.1",
+      "java": ">=21",
+      "fabric-api": "*"
+    }
+  }

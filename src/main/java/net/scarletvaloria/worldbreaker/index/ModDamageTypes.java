@@ -1,0 +1,27 @@
+package net.scarletvaloria.worldbreaker.index;
+
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageType;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.scarletvaloria.worldbreaker.WorldbreakerProtocol;
+
+public interface ModDamageTypes {
+    RegistryKey<DamageType> SHOCKWAVE_KILL = of("shockwave_damage");
+    RegistryKey<DamageType> RAILCANNON_KILL = of("laser_damage");
+    RegistryKey<DamageType> SKYBEAM_KILL = of("skybeam_damage");
+
+
+    static DamageSource shockwave_kill(LivingEntity entity) {
+        return entity.getDamageSources().create(SHOCKWAVE_KILL); }
+    static DamageSource railcannon_kill(LivingEntity entity) {
+        return entity.getDamageSources().create(RAILCANNON_KILL); }
+    static DamageSource skybeam_kill(LivingEntity entity) {
+        return entity.getDamageSources().create(SKYBEAM_KILL); }
+
+    private static RegistryKey<DamageType> of(String name) {
+        return RegistryKey.of(RegistryKeys.DAMAGE_TYPE, WorldbreakerProtocol.id(name));
+    }
+}
+

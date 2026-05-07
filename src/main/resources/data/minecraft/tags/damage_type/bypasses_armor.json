@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "worldbreaker:shockwave_damage",
+    "worldbreaker:laser_damage"
+  ]
+}
