@@ -2,7 +2,6 @@ package net.scarletvaloria.worldbreaker.item;
 
 import net.acoyt.acornlib.api.event.CustomRiptideEvent;
 import net.acoyt.acornlib.api.item.CustomHitSoundItem;
-import net.fabricmc.fabric.api.item.v1.FabricItem;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.Entity;
@@ -37,7 +36,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class TomahawkItem extends SwordItem implements CustomHitSoundItem, CustomRiptideEvent {
-    public TomahawkItem(ToolMaterials netherite, Settings settings) {
+    public TomahawkItem(Settings settings) {
         super(ToolMaterials.NETHERITE, settings.attributeModifiers(TomahawkItem.createAttributeModifiers()));
     }
 

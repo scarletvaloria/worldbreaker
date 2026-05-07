@@ -14,24 +14,32 @@
   "license": "CC0-1.0",
   "icon": "assets/worldbreaker/icon.png",
   "environment": "*",
-  "entrypoints": {
-    "main": [
-      "net.scarletvaloria.worldbreaker.WorldbreakerProtocol"
+  "custom": {
+    "cardinal-components": [
+      "worldbreaker:amwd_ticks"
     ]
   },
+  "entrypoints": {
+    "cardinal-components-entity": [
+      "net.scarletvaloria.worldbreaker.index.WorldbreakerEntityComponentInitializer"
+    ],
+    "main": [
+      "net.scarletvaloria.worldbreaker.WorldbreakerProtocol"
+    ],
     "client": [
       "net.scarletvaloria.worldbreaker.WorldbreakerProtocolClient"
     ],
     "fabric-datagen": [
       "net.scarletvaloria.worldbreaker.WorldbreakerProtocolDataGenerator"
-    ],
-    "mixins": [
-      "worldbreaker.mixins.json"
-    ],
-    "depends": {
-      "fabricloader": ">=0.19.2",
-      "minecraft": "~1.21.1",
-      "java": ">=21",
-      "fabric-api": "*"
-    }
+    ]
+  },
+  "mixins": [
+    "worldbreaker.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.2",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
   }
+}

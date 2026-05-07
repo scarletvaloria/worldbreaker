@@ -6,7 +6,11 @@
 	],
   "client": [
     "ItemRendererMixin",
-    "ModelLoaderMixin"
+    "ModelLoaderMixin",
+    "GameRendererMixin",
+    "HeldItemRendererMixin",
+    "SoundSystemMixin",
+    "GameRendererAccessor"
   ],
 	"injectors": {
 		"defaultRequire": 1

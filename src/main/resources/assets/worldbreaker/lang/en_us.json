@@ -15,7 +15,13 @@
   "death.attack.laser_damage.player": "%1$s was vaporized by %2$s",
   "death.attack.skybeam_damage": "%1$s was disintegrated",
   "death.attack.skybeam_damage.player": "%1$s was disintegrated by %2$s",
+  "death.attack.launch_damage": "%1$s went on a tour of the clouds",
+  "death.attack.launch_damage.player": "%1$s was sent on a tour of the clouds by %2$s",
   "sounds.worldbreaker.lock_on": "Railcannon locks on",
   "sounds.worldbreaker.cannon_fire_loop": "Railcannon Laser fires",
-  "sounds.worldbreaker.skybeam_hit": "Skybeam hits"
+  "sounds.worldbreaker.skybeam_hit": "Skybeam hits",
+  "effect.worldbreaker.concussed": "Concussed",
+  "itemgroup.worldbreaker.worldbreaker_group": "Worldbreaker Protocol",
+  "sounds.worldbreaker.amwd_charge_start": "AMWD starts charging",
+  "sounds.worldbreaker.amwd_charge_loop": "AMWD charges"
 }

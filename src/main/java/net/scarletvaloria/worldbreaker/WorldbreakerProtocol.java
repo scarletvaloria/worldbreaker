@@ -2,20 +2,20 @@ package net.scarletvaloria.worldbreaker;
 
 import net.acoyt.acornlib.api.event.CustomRiptideEvent;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageType;
 import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import net.scarletvaloria.worldbreaker.index.*;
 import net.scarletvaloria.worldbreaker.item.RailcannonItem;
@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Optional;
 import static net.scarletvaloria.worldbreaker.item.TomahawkItem.triggerShockwave;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 
 
@@ -38,6 +37,12 @@ public class WorldbreakerProtocol implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ModSounds.registerSounds();
+        ModStatusEffects.registerEffects();
+        ModParticles.registerParticles();
+        ModItems.registerModItems();
+        ModItemGroups.registerItemGroups();
+
 
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (entity instanceof ServerPlayerEntity player && source.isOf(DamageTypes.FALL)) {
@@ -82,13 +87,5 @@ public class WorldbreakerProtocol implements ModInitializer {
                 }
             });
         });
-
-
-
-        ModComponents.initialize();
-        ModItems.registerModItems();
-        ModSounds.registerSounds();
-        ModParticles.registerParticles();
-        ModParticles.registerParticlesClient();
     }
 }

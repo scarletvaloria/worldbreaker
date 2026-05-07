@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
@@ -164,21 +165,60 @@ public class RailcannonItem extends Item {
     private void spawnGuidingLine(ServerWorld sw, Vec3d start, Vec3d end) {
         double dist = start.distanceTo(end);
         Vec3d dir = end.subtract(start).normalize();
-        for (double i = 0.3; i < dist; i += 0.5) {
+        for (double i = 0.5; i < dist; i += 0.5) {
             Vec3d p = start.add(dir.multiply(i));
             sw.spawnParticles(new DustParticleEffect(new Vector3f(1.0f, 0.0f, 0.0f), 0.5f), p.x, p.y, p.z, 1, 0, 0, 0, 0);
         }
     }
 
+    public void shoot(ServerPlayerEntity player) {
+        Vec3d eyePos = player.getEyePos();
+        Vec3d lookDir = player.getRotationVec(1.0F);
+
+        double maxDist = 50.0;
+        Vec3d traceEnd = eyePos.add(lookDir.multiply(maxDist));
+        BlockHitResult hitResult = player.getWorld().raycast(new RaycastContext(
+                eyePos, traceEnd, RaycastContext.ShapeType.OUTLINE, RaycastContext.FluidHandling.NONE, player
+        ));
+        Vec3d endPos = hitResult.getPos();
+
+        float yaw = player.getYaw();
+        float pitch = player.getPitch();
+
+        double rightShift = 3.0;
+        double downShift = 0.4;
+        double forwardShift = 0.9;
+
+        double radYaw = Math.toRadians(yaw);
+        double radPitch = Math.toRadians(pitch);
+
+        Vec3d side = new Vec3d(-Math.cos(radYaw), 0, -Math.sin(radYaw)).normalize();
+
+        Vec3d down = new Vec3d(
+                Math.sin(radYaw) * Math.sin(radPitch),
+                Math.cos(radPitch),
+                -Math.cos(radYaw) * Math.sin(radPitch)
+        ).normalize();
+
+        Vec3d handPos = eyePos
+                .add(side.multiply(rightShift))
+                .subtract(down.multiply(downShift))
+                .add(lookDir.multiply(forwardShift));
+
+        spawnLaserParticles((ServerWorld)player.getWorld(), handPos, endPos);
+    }
+
+
+
     private void spawnLaserParticles(ServerWorld sw, Vec3d start, Vec3d end) {
         double dist = start.distanceTo(end);
         Vec3d dir = end.subtract(start).normalize();
-        for (double i = 0.2; i < dist; i += 0.2) {
+
+        for (double i = 2.0; i < dist; i += 2.0) {
             Vec3d p = start.add(dir.multiply(i));
-            sw.spawnParticles(ParticleTypes.ELECTRIC_SPARK, p.x, p.y, p.z, 1, 0, 0, 0, 0);
+            sw.spawnParticles(ParticleTypes.END_ROD, p.x, p.y, p.z, 1, 0, 0, 0, 0);
         }
     }
-
     @Override
     public int getMaxUseTime(ItemStack stack, LivingEntity user) { return 72000; }
 }

@@ -11,6 +11,24 @@
       "worldbreaker:railcannon_lock_on"
     ]
   },
+  "amwd_charge_start": {
+    "subtitle": "sounds.worldbreaker.amwd_charge_start",
+    "sounds": [
+      "worldbreaker:amwd_charge_start"
+    ]
+  },
+  "amwd_charge_loop": {
+    "subtitle": "sounds.worldbreaker.amwd_charge_loop",
+    "sounds": [
+      "worldbreaker:amwd_charge_loop"
+    ]
+  },
+  "ear_ringing": {
+    "subtitle": "sounds.worldbreaker.ear_ringing",
+    "sounds": [
+      "worldbreaker:ear_ringing"
+    ]
+  },
   "skybeam_hit": {
     "subtitle": "sounds.worldbreaker.skybeam_hit",
     "sounds": [
