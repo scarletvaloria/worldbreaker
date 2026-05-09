@@ -5,12 +5,15 @@
 	"mixins": [
 	],
   "client": [
-    "ItemRendererMixin",
-    "ModelLoaderMixin",
+    "ArmorHideMixin",
+    "GameRendererAccessor",
     "GameRendererMixin",
     "HeldItemRendererMixin",
-    "SoundSystemMixin",
-    "GameRendererAccessor"
+    "ItemRendererMixin",
+    "ModelLoaderMixin",
+    "PlayerHideMixin",
+    "SoundSystemMixin"
+
   ],
 	"injectors": {
 		"defaultRequire": 1

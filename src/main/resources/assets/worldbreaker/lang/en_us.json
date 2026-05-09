@@ -1,12 +1,12 @@
 {
   "item.worldbreaker.worldbreaker_engine": "Worldbreaker Engine",
-  "item.worldbreaker.worldbreaker_helmet": "Worldbreaker Helmet",
-  "item.worldbreaker.worldbreaker_chestplate": "Worldbreaker Chestplate",
-  "item.worldbreaker.worldbreaker_leggings": "Worldbreaker Leggings",
-  "item.worldbreaker.worldbreaker_boots": "Worldbreaker Boots",
+  "item.worldbreaker.worldbreaker_assembly": "Worldbreaker Assembly",
   "item.worldbreaker.tomahawk": "Compressed Energy Tomahawk",
   "item.worldbreaker.amwd": "AMWD",
-  "item.worldbreaker.worldbreaker_cannon": "Worldbreaker Cannon",
+  "item.worldbreaker.worldbreaker_cannon": "Worldbreaker Railcannon",
+  "item.worldbreaker.auric_titanium_plating": "Auric Titanium Plating",
+  "item.worldbreaker.plasma_catalyst": "Plasma Catalyst",
+  "item.worldbreaker.plasma_cell": "Plasma Cell",
   "sounds.worldbreaker.tomahawk_dash": "Tomahawk dashes",
   "sounds.worldbreaker.worldbreaker_shockwave": "Shockwave",
   "death.attack.shockwave_damage": "%1$s was blown away",
@@ -23,5 +23,7 @@
   "effect.worldbreaker.concussed": "Concussed",
   "itemgroup.worldbreaker.worldbreaker_group": "Worldbreaker Protocol",
   "sounds.worldbreaker.amwd_charge_start": "AMWD starts charging",
-  "sounds.worldbreaker.amwd_charge_loop": "AMWD charges"
+  "sounds.worldbreaker.amwd_charge_loop": "AMWD charges",
+  "sounds.worldbreaker.engine_assimilate": "Wordlbreaker Engine assimilates item",
+  "sounds.worldbreaker.engine_complete": "Wordlbreaker Assembly assembles"
 }

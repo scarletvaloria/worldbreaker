@@ -20,6 +20,10 @@ public class ModItemGroups {
                         entries.add(ModItems.TOMAHAWK);
                         entries.add(ModItems.WORLDBREAKER_RAILCANNON);
                         entries.add(ModItems.AMWD);
+                        entries.add(ModItems.WORLDBREAKER_ENGINE);
+                        entries.add(ModItems.PLASMA_CELL);
+                        entries.add(ModItems.AURIC_TITANIUM_PLATING);
+                        entries.add(ModItems.PLASMA_CATALYST);
 
 
 

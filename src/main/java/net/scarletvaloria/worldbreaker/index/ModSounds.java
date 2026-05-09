@@ -16,6 +16,8 @@ public static final SoundEvent TOMAHAWK_DASH = registerSoundEvent("tomahawk_dash
     public static final SoundEvent EAR_RINGING = registerSoundEvent("ear_ringing");
     public static final SoundEvent AMWD_CHARGE_START = registerSoundEvent("amwd_charge_start");
     public static final SoundEvent AMWD_CHARGE_LOOP = registerSoundEvent("amwd_charge_loop");
+    public static final SoundEvent ENGINE_ASSIMILATE = registerSoundEvent("engine_assimilate");
+    public static final SoundEvent ENGINE_COMPLETE = registerSoundEvent("engine_complete");
 
     private static SoundEvent registerSoundEvent(String name) {
         Identifier id = Identifier.of(WorldbreakerProtocol.MOD_ID, name);

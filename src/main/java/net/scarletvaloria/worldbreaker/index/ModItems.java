@@ -6,9 +6,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.scarletvaloria.worldbreaker.WorldbreakerProtocol;
-import net.scarletvaloria.worldbreaker.item.AMWDItem;
-import net.scarletvaloria.worldbreaker.item.RailcannonItem;
-import net.scarletvaloria.worldbreaker.item.TomahawkItem;
+import net.scarletvaloria.worldbreaker.item.*;
 
 import static net.acoyt.acornlib.api.util.ItemUtils.modifyItemNameColor;
 
@@ -26,6 +24,24 @@ Registries.ITEM, Identifier.of(WorldbreakerProtocol.MOD_ID, "tomahawk"),
             Registries.ITEM, Identifier.of(WorldbreakerProtocol.MOD_ID, "worldbreaker_cannon"),
             new RailcannonItem(new Item.Settings().maxCount(1)));
 
+    public static final Item WORLDBREAKER_ENGINE = Registry.register(Registries.ITEM,
+            Identifier.of(WorldbreakerProtocol.MOD_ID, "worldbreaker_engine"),
+            new WorldbreakerEngineItem(new Item.Settings().maxCount(1)));
+
+
+    public static final Item WORLDBREAKER_ASSEMBLY = Registry.register(
+            Registries.ITEM, Identifier.of(WorldbreakerProtocol.MOD_ID, "worldbreaker_assembly"),
+            new WorldbreakerAssemblyItem(new Item.Settings().maxCount(1)));
+
+public static final Item AURIC_TITANIUM_PLATING = Registry.register(Registries.ITEM, Identifier.of(
+        WorldbreakerProtocol.MOD_ID, "auric_titanium_plating"), new Item(new Item.Settings()));
+
+    public static final Item PLASMA_CATALYST = Registry.register(Registries.ITEM, Identifier.of(
+            WorldbreakerProtocol.MOD_ID, "plasma_catalyst"), new Item(new Item.Settings()));
+
+    public static final Item PLASMA_CELL = Registry.register(Registries.ITEM, Identifier.of(WorldbreakerProtocol.MOD_ID,
+           "plasma_cell"), new Item(new Item.Settings().food(ModFoodComponents.PLASMA_CELL)));
+
 
 
     private static <T extends Item> T register(String name, T item) {
@@ -36,6 +52,7 @@ Registries.ITEM, Identifier.of(WorldbreakerProtocol.MOD_ID, "tomahawk"),
         modifyItemNameColor(TOMAHAWK, 0xffd700);
         modifyItemNameColor(WORLDBREAKER_RAILCANNON, 0xffd700);
         modifyItemNameColor(AMWD, 0xffd700);
+        modifyItemNameColor(WORLDBREAKER_ASSEMBLY, 0xffd700);
 
         WorldbreakerProtocol.LOGGER.info("Registering Mod Items for " + WorldbreakerProtocol.MOD_ID);
     }

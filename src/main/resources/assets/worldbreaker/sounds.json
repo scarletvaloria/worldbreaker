@@ -11,6 +11,18 @@
       "worldbreaker:railcannon_lock_on"
     ]
   },
+    "engine_assimilate": {
+    "subtitle": "sounds.worldbreaker.engine_assimilate",
+    "sounds": [
+      "worldbreaker:engine_assimilate"
+    ]
+  },
+  "engine_complete": {
+    "subtitle": "sounds.worldbreaker.engine_complete",
+    "sounds": [
+      "worldbreaker:engine_complete"
+    ]
+  },
   "amwd_charge_start": {
     "subtitle": "sounds.worldbreaker.amwd_charge_start",
     "sounds": [
