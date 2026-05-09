@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "P": {
+      "item": "worldbreaker:plasma_catalyst"
+    },
+    "B": {
+      "item": "minecraft:beacon"
+    },
+    "N": {
+      "item": "minecraft:netherite_chestplate"
+    },
+    "S": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "A": {
+      "item": "worldbreaker:auric_titanium_plating"
+    },
+    "E": {
+      "item": "minecraft:ender_chest"
+    }
+  },
+  "pattern": [
+    "PBP",
+    "ANA",
+    "SES"
+  ],
+  "result": {
+    "count": 1,
+    "id": "worldbreaker:worldbreaker_engine"
+  }
+}

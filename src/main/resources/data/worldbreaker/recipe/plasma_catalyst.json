@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "I": {
+      "item": "minecraft:ice"
+    },
+    "A": {
+      "item": "minecraft:iron_block"
+    },
+    "E": {
+      "item": "minecraft:ender_chest"
+    }
+  },
+  "pattern": [
+    "IAI",
+    "AEA",
+    "IAI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "worldbreaker:plasma_catalyst"
+  }
+}
