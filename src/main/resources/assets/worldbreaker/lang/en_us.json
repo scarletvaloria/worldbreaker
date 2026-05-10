@@ -11,6 +11,8 @@
   "sounds.worldbreaker.worldbreaker_shockwave": "Shockwave",
   "death.attack.shockwave_damage": "%1$s was blown away",
   "death.attack.shockwave_damage.player": "%1$s was blown away by %2$s",
+  "death.attack.worldbreaker_death_damage": "%1$s has descended",
+  "death.attack.worldbreaker_death_damage.player": "%1$s was brought down by %2$s",
   "death.attack.laser_damage": "%1$s was vaporized",
   "death.attack.laser_damage.player": "%1$s was vaporized by %2$s",
   "death.attack.skybeam_damage": "%1$s was disintegrated",

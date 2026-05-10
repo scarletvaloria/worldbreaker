@@ -37,10 +37,6 @@ public class ModComponents implements EntityComponentInitializer {
     public static final ComponentKey<Component> AMWD_TICKS =
             ComponentRegistryV3.INSTANCE.getOrCreate(Identifier.of(WorldbreakerProtocol.MOD_ID, "amwd_ticks"), Component.class);
 
-    public static final ComponentType<Integer> DASH_CHARGES = register("dash_charges", builder ->
-            builder.codec(Codec.INT)
-    );
-
     public static final ComponentType<BlockPos> MARKER_POS = Registry.register(
             Registries.DATA_COMPONENT_TYPE,
             Identifier.of(WorldbreakerProtocol.MOD_ID, "marker_pos"),
@@ -119,5 +115,4 @@ public class ModComponents implements EntityComponentInitializer {
         );
     }
 }
-
 

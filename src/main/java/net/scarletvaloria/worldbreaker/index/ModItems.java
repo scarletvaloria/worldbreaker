@@ -18,7 +18,7 @@ public class ModItems {
     );
     public static final Item TOMAHAWK = Registry.register(
 Registries.ITEM, Identifier.of(WorldbreakerProtocol.MOD_ID, "tomahawk"),
-            new TomahawkItem(new Item.Settings().attributeModifiers(TomahawkItem.createAttributeModifiers()).component(ModComponents.DASH_CHARGES, 3)));
+            new TomahawkItem(new Item.Settings().attributeModifiers(TomahawkItem.createAttributeModifiers()).component(ModDataComponents.DASH_CHARGES, 3)));
 
     public static final Item WORLDBREAKER_RAILCANNON = Registry.register(
             Registries.ITEM, Identifier.of(WorldbreakerProtocol.MOD_ID, "worldbreaker_cannon"),

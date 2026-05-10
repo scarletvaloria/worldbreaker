@@ -3,6 +3,7 @@
   "values": [
     "worldbreaker:shockwave_damage",
     "worldbreaker:laser_damage",
-    "worldbreaker:launch_damage"
+    "worldbreaker:launch_damage",
+    "worldbreaker:worldbreaker_death_damage"
   ]
 }

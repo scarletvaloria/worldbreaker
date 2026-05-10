@@ -1,13 +1,12 @@
 package net.scarletvaloria.worldbreaker.item;
 
-import com.terraformersmc.modmenu.util.mod.Mod;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public class WorldbreakerEngineItem extends Item {
+
     private static final Map<Item, Integer> QUOTA = Map.of(
             Items.IRON_BLOCK, 64,
             Items.GOLD_BLOCK, 64,
@@ -33,57 +33,122 @@ public class WorldbreakerEngineItem extends Item {
             Items.COMPARATOR, 16
     );
 
-    public WorldbreakerEngineItem(Settings settings) { super(settings); }
+    public WorldbreakerEngineItem(Settings settings) {
+        super(settings);
+    }
 
     @Override
     public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        ModComponents.EngineFuelData data = stack.get(ModComponents.FUEL_DATA);
-        Map<Item, Integer> current = data != null ? data.fuelCounts() : Map.of();
+        ModComponents.EngineFuelData data = getOrCreate(stack);
 
-        tooltip.add(Text.literal("Required Materials:").formatted(Formatting.GRAY));
-        QUOTA.forEach((item, required) -> {
+        Map<Item, Integer> current = data.fuelCounts();
+
+        tooltip.add(Text.literal("Required Materials:")
+                .formatted(Formatting.GRAY));
+
+        for (var entry : QUOTA.entrySet()) {
+            Item item = entry.getKey();
+            int required = entry.getValue();
             int count = current.getOrDefault(item, 0);
-            Formatting color = (count >= required) ? Formatting.GREEN : Formatting.RED;
-            tooltip.add(Text.literal("- " + item.getName().getString() + ": " + count + "/" + required).formatted(color));
-        });
+
+            Formatting color = (count >= required)
+                    ? Formatting.GREEN
+                    : Formatting.RED;
+
+            tooltip.add(Text.literal(
+                    "- " + item.getName().getString() + ": " + count + "/" + required
+            ).formatted(color));
+        }
     }
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-        ItemStack engine = player.getStackInHand(hand);
+
+        ItemStack stack = player.getStackInHand(hand);
         ItemStack offhand = player.getOffHandStack();
-        Item offhandItem = offhand.getItem();
+        Item item = offhand.getItem();
 
-        if (QUOTA.containsKey(offhandItem)) {
-            if (!world.isClient) {
-                ModComponents.EngineFuelData data = engine.getOrDefault(ModComponents.FUEL_DATA, new ModComponents.EngineFuelData(new HashMap<>()));
-                Map<Item, Integer> currentCounts = new HashMap<>(data.fuelCounts());
-
-                int currentCount = currentCounts.getOrDefault(offhandItem, 0);
-                int required = QUOTA.get(offhandItem);
-
-                if (currentCount < required) {
-                    offhand.decrement(1);
-                    currentCounts.put(offhandItem, currentCount + 1);
-
-                    engine.set(ModComponents.FUEL_DATA, new ModComponents.EngineFuelData(currentCounts));
-
-                    world.playSound(null, player.getBlockPos(), ModSounds.ENGINE_ASSIMILATE, SoundCategory.PLAYERS, 1.0f, 0.5f + (currentCount * 0.1f));
-                    player.sendMessage(Text.literal("Assimilated " + offhandItem.getName().getString() + ": " + (currentCount + 1) + "/" + required), true);
-
-                    if (isFullyFueled(currentCounts)) {
-                        player.setStackInHand(hand, new ItemStack(ModItems.WORLDBREAKER_ASSEMBLY));
-                        player.sendMessage(Text.literal("Worldbreaker Assembly Complete!").formatted(Formatting.GOLD, Formatting.BOLD), false);
-                        world.playSound(null, player.getBlockPos(), ModSounds.ENGINE_COMPLETE, SoundCategory.PLAYERS, 1.0f, 0.5f + (currentCount * 0.1f));
-                    }
-                }
-            }
-            return TypedActionResult.success(engine);
+        if (!QUOTA.containsKey(item)) {
+            return TypedActionResult.pass(stack);
         }
-        return TypedActionResult.pass(engine);
+
+        if (world.isClient) {
+            return TypedActionResult.success(stack);
+        }
+
+        ModComponents.EngineFuelData data = getOrCreate(stack);
+        Map<Item, Integer> map = new HashMap<>(data.fuelCounts());
+
+        int current = map.getOrDefault(item, 0);
+        int required = QUOTA.get(item);
+
+        if (current >= required) {
+            return TypedActionResult.success(stack);
+        }
+
+        offhand.decrement(1);
+        map.put(item, current + 1);
+
+        ModComponents.EngineFuelData updated =
+                new ModComponents.EngineFuelData(Map.copyOf(map));
+        stack.set(ModComponents.FUEL_DATA, updated);
+
+        player.setStackInHand(hand, stack);
+
+        if (player instanceof ServerPlayerEntity sp) {
+            sp.currentScreenHandler.sendContentUpdates();
+        }
+
+        world.playSound(
+                null,
+                player.getBlockPos(),
+                ModSounds.ENGINE_ASSIMILATE,
+                SoundCategory.PLAYERS,
+                1.0f,
+                1.0f
+        );
+
+        player.sendMessage(Text.literal(
+                "Assimilated " + item.getName().getString() +
+                        ": " + (current + 1) + "/" + required
+        ), true);
+
+        if (isFullyFueled(map)) {
+            player.setStackInHand(hand, new ItemStack(ModItems.WORLDBREAKER_ASSEMBLY));
+
+            player.sendMessage(
+                    Text.literal("Worldbreaker Assembly Complete!")
+                            .formatted(Formatting.GOLD, Formatting.BOLD),
+                    false
+            );
+
+            world.playSound(
+                    null,
+                    player.getBlockPos(),
+                    ModSounds.ENGINE_COMPLETE,
+                    SoundCategory.PLAYERS,
+                    1.0f,
+                    1.0f
+            );
+        }
+
+        return TypedActionResult.success(stack);
     }
 
-    private boolean isFullyFueled(Map<Item, Integer> current) {
-        return QUOTA.entrySet().stream().allMatch(e -> current.getOrDefault(e.getKey(), 0) >= e.getValue());
+    private static ModComponents.EngineFuelData getOrCreate(ItemStack stack) {
+        ModComponents.EngineFuelData data = stack.get(ModComponents.FUEL_DATA);
+
+        if (data == null) {
+            data = new ModComponents.EngineFuelData(Map.of());
+            stack.set(ModComponents.FUEL_DATA, data);
+        }
+
+        return data;
     }
+
+    private boolean isFullyFueled(Map<Item, Integer> map) {
+        return QUOTA.entrySet().stream()
+                .allMatch(e -> map.getOrDefault(e.getKey(), 0) >= e.getValue());
+    }
+
 }

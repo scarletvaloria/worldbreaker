@@ -1,7 +1,5 @@
 package net.scarletvaloria.worldbreaker.index;
 
-import net.minecraft.registry.Registries;
-import net.scarletvaloria.worldbreaker.index.ModStatusEffects;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.sound.MovingSoundInstance;
 import net.minecraft.sound.SoundCategory;

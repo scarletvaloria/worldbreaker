@@ -1,13 +1,15 @@
 package net.scarletvaloria.worldbreaker;
 
-// Correct GeckoLib 4.8.4 Imports
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.scarletvaloria.worldbreaker.index.ChargeUtil;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.constant.dataticket.SerializableDataTicket;
 import software.bernie.geckolib.util.GeckoLibUtil;
-
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.acoyt.acornlib.api.event.CustomRiptideEvent;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -22,8 +24,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.text.Text;
 import net.scarletvaloria.worldbreaker.index.*;
 import net.scarletvaloria.worldbreaker.item.RailcannonItem;
@@ -40,7 +40,6 @@ public class WorldbreakerProtocol implements ModInitializer {
 
     public static final SerializableDataTicket<Double> CHARGE_LEVEL =
             GeckoLibUtil.addDataTicket(SerializableDataTicket.ofDouble(id("charge_level")));
-
 
 
     public static Identifier id(String path) {
@@ -68,6 +67,16 @@ public class WorldbreakerProtocol implements ModInitializer {
                 }
             }
             return true;
+        });
+
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            ServerPlayerEntity player = handler.player;
+
+            for (ItemStack stack : player.getInventory().main) {
+                if (stack.getItem() instanceof TomahawkItem) {
+                    TomahawkState.reset(stack);
+                }
+            }
         });
 
         CustomRiptideEvent.EVENT.register((player, stack) -> {

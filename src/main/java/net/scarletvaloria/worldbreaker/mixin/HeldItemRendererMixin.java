@@ -12,6 +12,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.RotationAxis;
 import net.scarletvaloria.worldbreaker.index.ModComponents;
 import net.scarletvaloria.worldbreaker.index.ModItems;
+import net.scarletvaloria.worldbreaker.model.WorldbreakerRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,6 +20,41 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HeldItemRenderer.class)
 public class HeldItemRendererMixin {
+
+    @Inject(method = "renderFirstPersonItem", at = @At("HEAD"))
+    private void worldbreaker$start(AbstractClientPlayerEntity player,
+                                    float tickDelta,
+                                    float pitch,
+                                    Hand hand,
+                                    float swingProgress,
+                                    ItemStack stack,
+                                    float equipProgress,
+                                    MatrixStack matrices,
+                                    VertexConsumerProvider vertexConsumers,
+                                    int light,
+                                    CallbackInfo ci) {
+
+        if (ModComponents.FORM_STATE.get(player).isActive()) {
+            WorldbreakerRenderState.FORCE_WORLDBREAKER_SKIN = true;
+        }
+    }
+
+    @Inject(method = "renderFirstPersonItem", at = @At("RETURN"))
+    private void worldbreaker$end(AbstractClientPlayerEntity player,
+                                  float tickDelta,
+                                  float pitch,
+                                  Hand hand,
+                                  float swingProgress,
+                                  ItemStack stack,
+                                  float equipProgress,
+                                  MatrixStack matrices,
+                                  VertexConsumerProvider vertexConsumers,
+                                  int light,
+                                  CallbackInfo ci) {
+
+        WorldbreakerRenderState.FORCE_WORLDBREAKER_SKIN = false;
+    }
+
 
     @Inject(method = "renderFirstPersonItem", at = @At("HEAD"))
     private void adjustAMWDAnimation(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {

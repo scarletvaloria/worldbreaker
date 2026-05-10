@@ -12,7 +12,11 @@ import net.minecraft.world.World;
 import net.scarletvaloria.worldbreaker.index.ModComponents;
 import net.scarletvaloria.worldbreaker.index.WorldbreakerFormManager;
 
+import java.util.UUID;
+
 public class WorldbreakerAssemblyItem extends Item {
+
+
 
     public WorldbreakerAssemblyItem(Settings settings) {
         super(settings);
@@ -20,7 +24,13 @@ public class WorldbreakerAssemblyItem extends Item {
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-        if (!world.isClient && hand == Hand.MAIN_HAND && player instanceof ServerPlayerEntity serverPlayer) {
+        ItemStack stack = player.getStackInHand(hand);
+
+        if (!(player instanceof ServerPlayerEntity serverPlayer)) {
+            return TypedActionResult.pass(stack);
+        }
+
+        if (!world.isClient && hand == Hand.MAIN_HAND) {
 
             boolean isCurrentlyActive = ModComponents.FORM_STATE.get(player).isActive();
 
@@ -32,9 +42,10 @@ public class WorldbreakerAssemblyItem extends Item {
 
             ModComponents.FORM_STATE.sync(player);
 
-            return TypedActionResult.success(player.getStackInHand(hand));
+            return TypedActionResult.success(stack);
         }
-        return TypedActionResult.pass(player.getStackInHand(hand));
+
+        return TypedActionResult.pass(stack);
     }
 }
 

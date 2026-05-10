@@ -5,13 +5,15 @@
 	"mixins": [
 	],
   "client": [
+    "AbstractClientPlayerEntityMixin",
     "ArmorHideMixin",
     "GameRendererAccessor",
     "GameRendererMixin",
     "HeldItemRendererMixin",
     "ItemRendererMixin",
+    "LivingEntityFallMixin",
     "ModelLoaderMixin",
-    "PlayerHideMixin",
+    "PlayerEntityRendererMixin",
     "SoundSystemMixin"
 
   ],
