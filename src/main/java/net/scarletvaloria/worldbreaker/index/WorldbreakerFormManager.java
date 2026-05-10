@@ -22,7 +22,7 @@ public class WorldbreakerFormManager {
         player.getAttributeInstance(EntityAttributes.GENERIC_SCALE).setBaseValue(1.25);
         player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(40.0);
         player.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(20.0);
-        player.setHealth(42.0f);
+        player.setHealth(40.0f);
 
         player.getInventory().setStack(0, new ItemStack(ModItems.TOMAHAWK));
         player.getInventory().setStack(1, new ItemStack(ModItems.WORLDBREAKER_RAILCANNON));
@@ -34,7 +34,7 @@ public class WorldbreakerFormManager {
         player.getWorld().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.BLOCK_BEACON_POWER_SELECT, SoundCategory.PLAYERS, 1.0f, 1.0f);
 
-        player.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, -1, 2, false, false));
+        player.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, -1, 1, false, false));
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.NIGHT_VISION, -1, 0, false, false));
         player.addStatusEffect(new StatusEffectInstance(StatusEffects.FIRE_RESISTANCE, -1, 0, false, false));
 
@@ -79,7 +79,6 @@ public class WorldbreakerFormManager {
 
         if (!player.isCreative() && !player.isSpectator()) {
             player.getAbilities().allowFlying = false;
-            player.getAbilities().flying = false;
             player.getAbilities().setFlySpeed(0.05f);
             player.sendAbilitiesUpdate();
         }

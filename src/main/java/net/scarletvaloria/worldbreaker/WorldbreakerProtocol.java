@@ -30,6 +30,7 @@ import net.scarletvaloria.worldbreaker.item.RailcannonItem;
 import net.scarletvaloria.worldbreaker.item.TomahawkItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import net.scarletvaloria.worldbreaker.network.TomahawkSyncPacket;
 
 import java.util.Optional;
 import static net.scarletvaloria.worldbreaker.item.TomahawkItem.triggerShockwave;
@@ -56,6 +57,26 @@ public class WorldbreakerProtocol implements ModInitializer {
         ModItems.registerModItems();
         ModItemGroups.registerItemGroups();
 
+        PayloadTypeRegistry.playS2C().register(
+                TomahawkSyncPacket.ID,
+                TomahawkSyncPacket.CODEC
+        );
+
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+
+                ItemStack stack = player.getInventory().getStack(player.getInventory().selectedSlot);
+
+                int value = TomahawkState.get(stack);
+
+                if (value < 0 || value > 3) {
+                    TomahawkState.set(stack, Math.max(0, Math.min(3, value)));
+
+                    System.out.println("[TOMAHAWK GLOBAL FIX] corrected player " + player.getName().getString());
+                }
+            }
+        });
+
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
             if (entity instanceof ServerPlayerEntity player && source.isOf(DamageTypes.FALL)) {
                 if (player.getCommandTags().contains("TomahawkDiving")) {
@@ -74,7 +95,7 @@ public class WorldbreakerProtocol implements ModInitializer {
 
             for (ItemStack stack : player.getInventory().main) {
                 if (stack.getItem() instanceof TomahawkItem) {
-                    TomahawkState.reset(stack);
+                    TomahawkState.get(stack);
                 }
             }
         });
@@ -84,20 +105,6 @@ public class WorldbreakerProtocol implements ModInitializer {
                 return Optional.of(id("textures/entity/tomahawk_riptide.png"));
             }
             return Optional.empty();
-        });
-
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            PlayerEntity player = client.player;
-            if (player != null && ModComponents.FORM_STATE.get(player).isActive()) {
-                if (!player.isOnGround() && client.options.sneakKey.isPressed()) {
-                    player.setVelocity(player.getVelocity().x, 0.05, player.getVelocity().z);
-                }
-                if (!player.isOnGround()) {
-                    float speed = 0.05f;
-                    if (client.options.leftKey.isPressed()) player.addVelocity(player.getRotationVector().z * speed, 0, -player.getRotationVector().x * speed);
-                    if (client.options.rightKey.isPressed()) player.addVelocity(-player.getRotationVector().z * speed, 0, player.getRotationVector().x * speed);
-                }
-            }
         });
 
         PayloadTypeRegistry.playC2S().register(MarkerPacket.ID, MarkerPacket.CODEC);

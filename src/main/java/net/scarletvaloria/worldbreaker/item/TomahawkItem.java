@@ -14,7 +14,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterials;
 import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -29,7 +28,10 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.scarletvaloria.worldbreaker.WorldbreakerProtocol;
-import net.scarletvaloria.worldbreaker.index.*;
+import net.scarletvaloria.worldbreaker.index.ModComponents;
+import net.scarletvaloria.worldbreaker.index.ModDataComponents;
+import net.scarletvaloria.worldbreaker.index.ModParticles;
+import net.scarletvaloria.worldbreaker.index.ModSounds;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +45,7 @@ public class TomahawkItem extends SwordItem implements CustomHitSoundItem, Custo
         return AttributeModifiersComponent.builder()
                 .add(
                         EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                        new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 8.0f, EntityAttributeModifier.Operation.ADD_VALUE),
+                        new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 7.0f, EntityAttributeModifier.Operation.ADD_VALUE),
                         AttributeModifierSlot.MAINHAND
                 )
                 .add(
@@ -72,12 +74,12 @@ public class TomahawkItem extends SwordItem implements CustomHitSoundItem, Custo
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack stack = user.getStackInHand(hand);
+        int charges = stack.getOrDefault(ModDataComponents.DASH_CHARGES, 3);
 
-        if (TomahawkState.canUse(stack) || user.isCreative()) {
+        if (charges > 0 || user.isCreative()) {
             user.setCurrentHand(hand);
             return TypedActionResult.consume(stack);
         }
-
         return TypedActionResult.fail(stack);
     }
 
@@ -85,41 +87,48 @@ public class TomahawkItem extends SwordItem implements CustomHitSoundItem, Custo
     public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTime) {
         if (!(user instanceof PlayerEntity player)) return;
 
-        int holdTime = getMaxUseTime(stack, user) - remainingUseTime;
-        if (holdTime < 10) return;
+        int holdTime = this.getMaxUseTime(stack, user) - remainingUseTime;
 
-        if (!world.isClient) {
+        if (holdTime >= 10) {
+            int charges = stack.getOrDefault(ModDataComponents.DASH_CHARGES, 3);
 
-            float f = -MathHelper.sin(player.getYaw() * 0.017453292F)
-                    * MathHelper.cos(player.getPitch() * 0.017453292F);
+            if (!world.isClient) {
+                float f = -MathHelper.sin(player.getYaw() * 0.017453292F) * MathHelper.cos(player.getPitch() * 0.017453292F);
+                float g = -MathHelper.sin(player.getPitch() * 0.017453292F);
+                float h = MathHelper.cos(player.getYaw() * 0.017453292F) * MathHelper.cos(player.getPitch() * 0.017453292F);
 
-            float g = -MathHelper.sin(player.getPitch() * 0.017453292F);
+                player.addVelocity(f * 3.0F, g * 3.0F, h * 3.0F);
+                player.velocityModified = true;
 
-            float h = MathHelper.cos(player.getYaw() * 0.017453292F)
-                    * MathHelper.cos(player.getPitch() * 0.017453292F);
-
-            player.addVelocity(f * 3.0F, g * 3.0F, h * 3.0F);
-            player.velocityModified = true;
-
-            player.addCommandTag("TomahawkDiving");
-
-            if (!player.isCreative()) {
-
-                if (player instanceof ServerPlayerEntity serverPlayer) {
-                    TomahawkItem.setCharges(serverPlayer, stack, TomahawkState.get(stack) - 1);
+                if (player instanceof ServerPlayerEntity sp) {
+                    sp.networkHandler.sendPacket(new EntityVelocityUpdateS2CPacket(player));
                 }
 
-                int remaining = TomahawkState.get(stack);
+                player.addCommandTag("TomahawkDiving");
 
-                player.getItemCooldownManager()
-                        .set(this, remaining <= 0 ? 100 : 10);
+                if (!player.isCreative()) {
+                    int next = charges - 1;
+                    stack.set(ModDataComponents.DASH_CHARGES, next);
+                    player.getItemCooldownManager().set(this, next <= 0 ? 100 : 10);
+                }
+            }
+
+            player.useRiptide(20, 8.0f, stack);
+
+            world.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    ModSounds.TOMAHAWK_DASH, SoundCategory.MASTER, 2.0F, 1.0F);
+        }
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        if (entity instanceof PlayerEntity player && !world.isClient) {
+            if (player.isOnGround() && stack.getOrDefault(ModDataComponents.DASH_CHARGES, 0) == 0) {
+                if (!player.getItemCooldownManager().isCoolingDown(this)) {
+                    stack.set(ModDataComponents.DASH_CHARGES, 3);
+                }
             }
         }
-
-        player.useRiptide(20, 8.0f, stack);
-
-        world.playSound(null, player.getX(), player.getY(), player.getZ(),
-                ModSounds.TOMAHAWK_DASH, SoundCategory.MASTER, 2.0F, 1.0F);
     }
 
     public static void triggerShockwave(ServerPlayerEntity player, float intensity) {
@@ -174,16 +183,13 @@ public class TomahawkItem extends SwordItem implements CustomHitSoundItem, Custo
     }
 
     @Override
-    public boolean isItemBarVisible(ItemStack stack) {
-        return true;
-    }
+    public boolean isItemBarVisible(ItemStack stack) { return true; }
 
     @Override
     public int getItemBarStep(ItemStack stack) {
-        return Math.max(0, Math.min(13,
-                Math.round((TomahawkState.get(stack) * 13.0f) / 3.0f)
-        ));
+        return Math.round((float) stack.getOrDefault(ModDataComponents.DASH_CHARGES, 3) * 13.0f / 3.0f);
     }
+
     @Override
     public int getItemBarColor(ItemStack stack) {
         return 0xFFD700;
@@ -193,35 +199,12 @@ public class TomahawkItem extends SwordItem implements CustomHitSoundItem, Custo
     public void playHitSound(PlayerEntity playerEntity, Entity entity) {
     }
 
-
     @Override
     public Optional<Identifier> getRiptideTexture(PlayerEntity playerEntity, ItemStack itemStack) {
         return Optional.empty();
     }
-
     @Override
     public int getEnchantability() {
         return 0;
-    }
-
-    private static void syncHand(ServerPlayerEntity player) {
-        int slot = player.getInventory().selectedSlot;
-
-        player.getInventory().markDirty();
-
-        player.networkHandler.sendPacket(
-                new ScreenHandlerSlotUpdateS2CPacket(
-                        -2,
-                        0,
-                        slot,
-                        player.getMainHandStack().copy()
-                )
-        );
-    }
-
-    public static void setCharges(ServerPlayerEntity player, ItemStack stack, int value) {
-        TomahawkState.set(stack, value);
-
-        syncHand(player);
     }
 }

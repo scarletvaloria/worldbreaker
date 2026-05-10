@@ -2,11 +2,14 @@ package net.scarletvaloria.worldbreaker;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.scarletvaloria.worldbreaker.index.ModComponents;
 import net.scarletvaloria.worldbreaker.index.ModParticles;
 import net.scarletvaloria.worldbreaker.index.WorldbreakerClientState;
+import net.scarletvaloria.worldbreaker.item.TomahawkItem;
+import net.scarletvaloria.worldbreaker.network.TomahawkSyncPacket;
 
 public class WorldbreakerProtocolClient implements ClientModInitializer {
 
@@ -15,11 +18,21 @@ public class WorldbreakerProtocolClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
+        ClientPlayNetworking.registerGlobalReceiver(
+                TomahawkSyncPacket.ID,
+                (payload, ctx) -> {
+                    ctx.client().execute(() ->
+                            WorldbreakerClientState.set(payload.charges())
+                    );
+                }
+        );
+
         ModParticles.registerParticlesClient();
 
         registerClientTicks();
         registerHud();
     }
+
 
     private void registerClientTicks() {
 
@@ -34,6 +47,7 @@ public class WorldbreakerProtocolClient implements ClientModInitializer {
             }
         });
     }
+
 
     private void registerHud() {
 
