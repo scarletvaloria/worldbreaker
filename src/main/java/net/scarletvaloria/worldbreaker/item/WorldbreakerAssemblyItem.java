@@ -40,7 +40,8 @@ public class WorldbreakerAssemblyItem extends Item {
                 WorldbreakerFormManager.transform(serverPlayer);
             }
 
-            ModComponents.FORM_STATE.sync(player);
+            ModComponents.FORM_STATE.sync(serverPlayer);
+            ModComponents.INVENTORY.sync(serverPlayer);
 
             return TypedActionResult.success(stack);
         }

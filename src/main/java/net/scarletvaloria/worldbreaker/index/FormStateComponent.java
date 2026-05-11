@@ -8,23 +8,39 @@
     import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
 
     public class FormStateComponent implements Component, AutoSyncedComponent {
-        private boolean active = false;
+
+        private WorldbreakerState state = WorldbreakerState.NORMAL;
         private final PlayerEntity player;
 
-        public FormStateComponent(PlayerEntity player) { this.player = player; }
+        public FormStateComponent(PlayerEntity player) {
+            this.player = player;
+        }
 
-        public boolean isActive() { return active; }
+        public WorldbreakerState getState() {
+            return state;
+        }
 
-        public void setActive(boolean active) {
-            this.active = active;
+        public boolean isActive() {
+            return state == WorldbreakerState.WORLDBREAKER;
+        }
+
+        public void setState(WorldbreakerState state) {
+            this.state = state;
             ModComponents.FORM_STATE.sync(this.player);
         }
-            @Override
-            public boolean shouldSyncWith(ServerPlayerEntity player) {
-                return true;
+
+        @Override
+        public void readFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
+            this.state = WorldbreakerState.valueOf(nbt.getString("state"));
         }
+
         @Override
-        public void readFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) { this.active = nbt.getBoolean("active"); }
+        public void writeToNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
+            nbt.putString("state", this.state.name());
+        }
+
         @Override
-        public void writeToNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) { nbt.putBoolean("active", this.active); }
+        public boolean shouldSyncWith(ServerPlayerEntity player) {
+            return true;
+        }
     }
