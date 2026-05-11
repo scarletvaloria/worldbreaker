@@ -119,7 +119,7 @@ public class RailcannonItem extends Item {
         }
 
         Box damageArea = new Box(pos).expand(radius, 150, radius);
-        DamageSource beamSource = new DamageSource(world.getRegistryManager().getWrapperOrThrow(RegistryKeys.DAMAGE_TYPE).getOrThrow(ModDamageTypes.RAILCANNON_KILL), user);
+        DamageSource beamSource = new DamageSource(world.getRegistryManager().getWrapperOrThrow(RegistryKeys.DAMAGE_TYPE).getOrThrow(ModDamageTypes.SKYBEAM_KILL), user);
 
         for (Entity target : world.getOtherEntities(user, damageArea)) {
             if (target instanceof LivingEntity living) {

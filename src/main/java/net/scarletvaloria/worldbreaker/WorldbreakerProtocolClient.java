@@ -2,14 +2,11 @@ package net.scarletvaloria.worldbreaker;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.minecraft.entity.player.PlayerEntity;
 import net.scarletvaloria.worldbreaker.index.ModComponents;
 import net.scarletvaloria.worldbreaker.index.ModParticles;
 import net.scarletvaloria.worldbreaker.index.WorldbreakerClientState;
-import net.scarletvaloria.worldbreaker.item.TomahawkItem;
-import net.scarletvaloria.worldbreaker.network.TomahawkSyncPacket;
 
 public class WorldbreakerProtocolClient implements ClientModInitializer {
 
@@ -18,21 +15,11 @@ public class WorldbreakerProtocolClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
-        ClientPlayNetworking.registerGlobalReceiver(
-                TomahawkSyncPacket.ID,
-                (payload, ctx) -> {
-                    ctx.client().execute(() ->
-                            WorldbreakerClientState.set(payload.charges())
-                    );
-                }
-        );
 
         ModParticles.registerParticlesClient();
-
         registerClientTicks();
         registerHud();
     }
-
 
     private void registerClientTicks() {
 
@@ -44,6 +31,35 @@ public class WorldbreakerProtocolClient implements ClientModInitializer {
             if (active != wasActive) {
                 WorldbreakerClientState.triggerFlash();
                 wasActive = active;
+            }
+
+            PlayerEntity player = client.player;
+
+            if (ModComponents.FORM_STATE.get(player).isActive()) {
+
+                if (!player.isOnGround() && client.options.sneakKey.isPressed()) {
+                    player.setVelocity(player.getVelocity().x, 0.05, player.getVelocity().z);
+                }
+
+                if (!player.isOnGround()) {
+                    float speed = 0.05f;
+
+                    if (client.options.leftKey.isPressed()) {
+                        player.addVelocity(
+                                player.getRotationVector().z * speed,
+                                0,
+                                -player.getRotationVector().x * speed
+                        );
+                    }
+
+                    if (client.options.rightKey.isPressed()) {
+                        player.addVelocity(
+                                -player.getRotationVector().z * speed,
+                                0,
+                                player.getRotationVector().x * speed
+                        );
+                    }
+                }
             }
         });
     }

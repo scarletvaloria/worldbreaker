@@ -104,7 +104,7 @@ public class TomahawkItem extends SwordItem implements CustomHitSoundItem, Custo
                     sp.networkHandler.sendPacket(new EntityVelocityUpdateS2CPacket(player));
                 }
 
-                player.addCommandTag("TomahawkDiving");
+                WorldbreakerProtocol.DIVING_PLAYERS.add(player.getUuid());
 
                 if (!player.isCreative()) {
                     int next = charges - 1;

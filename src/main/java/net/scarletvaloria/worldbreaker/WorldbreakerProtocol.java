@@ -1,25 +1,14 @@
 package net.scarletvaloria.worldbreaker;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.scarletvaloria.worldbreaker.index.ChargeUtil;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.constant.dataticket.SerializableDataTicket;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.acoyt.acornlib.api.event.CustomRiptideEvent;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -30,14 +19,19 @@ import net.scarletvaloria.worldbreaker.item.RailcannonItem;
 import net.scarletvaloria.worldbreaker.item.TomahawkItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.scarletvaloria.worldbreaker.network.TomahawkSyncPacket;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
 import static net.scarletvaloria.worldbreaker.item.TomahawkItem.triggerShockwave;
 
 public class WorldbreakerProtocol implements ModInitializer {
     public static final String MOD_ID = "worldbreaker";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final Set<UUID> DIVING_PLAYERS = new HashSet<>();
+    public static final Set<UUID> AIRBORNE_DIVING_PLAYERS = new HashSet<>();
 
     public static final SerializableDataTicket<Double> CHARGE_LEVEL =
             GeckoLibUtil.addDataTicket(SerializableDataTicket.ofDouble(id("charge_level")));
@@ -57,47 +51,45 @@ public class WorldbreakerProtocol implements ModInitializer {
         ModItems.registerModItems();
         ModItemGroups.registerItemGroups();
 
-        PayloadTypeRegistry.playS2C().register(
-                TomahawkSyncPacket.ID,
-                TomahawkSyncPacket.CODEC
-        );
+
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
 
-                ItemStack stack = player.getInventory().getStack(player.getInventory().selectedSlot);
+                UUID uuid = player.getUuid();
 
-                int value = TomahawkState.get(stack);
+                if (!DIVING_PLAYERS.contains(uuid))
+                    continue;
 
-                if (value < 0 || value > 3) {
-                    TomahawkState.set(stack, Math.max(0, Math.min(3, value)));
+                if (!player.isOnGround()) {
+                    AIRBORNE_DIVING_PLAYERS.add(uuid);
+                }
 
-                    System.out.println("[TOMAHAWK GLOBAL FIX] corrected player " + player.getName().getString());
+                if (player.isOnGround() && AIRBORNE_DIVING_PLAYERS.contains(uuid)) {
+
+                    float fallDist = player.fallDistance;
+
+                    if (fallDist > 8.0f) {
+                        triggerShockwave(player, fallDist);
+                    }
+
+                    player.fallDistance = 0;
+
+                    DIVING_PLAYERS.remove(uuid);
+                    AIRBORNE_DIVING_PLAYERS.remove(uuid);
                 }
             }
         });
 
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
-            if (entity instanceof ServerPlayerEntity player && source.isOf(DamageTypes.FALL)) {
-                if (player.getCommandTags().contains("TomahawkDiving")) {
-                    float fallDist = player.fallDistance;
-                    if (fallDist > 8.0f) triggerShockwave(player, fallDist);
-                    player.removeCommandTag("TomahawkDiving");
-                    player.fallDistance = 0;
-                    return false;
-                }
+            if (entity instanceof ServerPlayerEntity player
+                    && source.isOf(DamageTypes.FALL)
+                    && DIVING_PLAYERS.contains(player.getUuid())) {
+
+                return false;
             }
+
             return true;
-        });
-
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            ServerPlayerEntity player = handler.player;
-
-            for (ItemStack stack : player.getInventory().main) {
-                if (stack.getItem() instanceof TomahawkItem) {
-                    TomahawkState.get(stack);
-                }
-            }
         });
 
         CustomRiptideEvent.EVENT.register((player, stack) -> {
