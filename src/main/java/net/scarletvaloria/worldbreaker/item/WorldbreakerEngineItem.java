@@ -39,7 +39,9 @@ public class WorldbreakerEngineItem extends Item {
 
     @Override
     public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        ModComponents.EngineFuelData data = getOrCreate(stack);
+
+        ModComponents.EngineFuelData data =
+                stack.getOrDefault(ModComponents.FUEL_DATA, new ModComponents.EngineFuelData(Map.of()));
 
         Map<Item, Integer> current = data.fuelCounts();
 
@@ -76,7 +78,9 @@ public class WorldbreakerEngineItem extends Item {
             return TypedActionResult.success(stack);
         }
 
-        ModComponents.EngineFuelData data = getOrCreate(stack);
+        ModComponents.EngineFuelData data =
+                stack.getOrDefault(ModComponents.FUEL_DATA, new ModComponents.EngineFuelData(Map.of()));
+
         Map<Item, Integer> map = new HashMap<>(data.fuelCounts());
 
         int current = map.getOrDefault(item, 0);
@@ -89,9 +93,8 @@ public class WorldbreakerEngineItem extends Item {
         offhand.decrement(1);
         map.put(item, current + 1);
 
-        ModComponents.EngineFuelData updated =
-                new ModComponents.EngineFuelData(Map.copyOf(map));
-        stack.set(ModComponents.FUEL_DATA, updated);
+        stack.set(ModComponents.FUEL_DATA,
+                new ModComponents.EngineFuelData(Map.copyOf(map)));
 
         player.setStackInHand(hand, stack);
 
@@ -114,6 +117,10 @@ public class WorldbreakerEngineItem extends Item {
         ), true);
 
         if (isFullyFueled(map)) {
+
+            stack.set(ModComponents.FUEL_DATA,
+                    new ModComponents.EngineFuelData(Map.of()));
+
             player.setStackInHand(hand, new ItemStack(ModItems.WORLDBREAKER_ASSEMBLY));
 
             player.sendMessage(

@@ -36,7 +36,7 @@ import net.scarletvaloria.worldbreaker.index.ModSounds;
 import java.util.List;
 import java.util.Optional;
 
-public class TomahawkItem extends SwordItem implements CustomHitSoundItem, CustomRiptideEvent {
+public class TomahawkItem extends SwordItem implements CustomRiptideEvent {
     public TomahawkItem(Settings settings) {
         super(ToolMaterials.NETHERITE, settings.attributeModifiers(TomahawkItem.createAttributeModifiers()));
     }
@@ -193,10 +193,6 @@ public class TomahawkItem extends SwordItem implements CustomHitSoundItem, Custo
     @Override
     public int getItemBarColor(ItemStack stack) {
         return 0xFFD700;
-    }
-
-    @Override
-    public void playHitSound(PlayerEntity playerEntity, Entity entity) {
     }
 
     @Override

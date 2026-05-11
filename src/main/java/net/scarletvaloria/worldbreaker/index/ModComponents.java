@@ -47,7 +47,7 @@
 
         public static final ComponentType<EngineFuelData> FUEL_DATA = Registry.register(
                 Registries.DATA_COMPONENT_TYPE,
-                Identifier.of("worldbreaker", "fuel_data"),
+                Identifier.of(WorldbreakerProtocol.MOD_ID, "fuel_data"),
                 ComponentType.<EngineFuelData>builder()
                         .codec(EngineFuelData.CODEC)
                         .packetCodec(EngineFuelData.PACKET_CODEC)
@@ -61,14 +61,29 @@
         }
 
         public record EngineFuelData(Map<Item, Integer> fuelCounts) {
-            public static final Codec<EngineFuelData> CODEC = Codec.unboundedMap(
-                    Registries.ITEM.getCodec(), Codec.INT).xmap(EngineFuelData::new, EngineFuelData::fuelCounts);
 
-            public static final PacketCodec<RegistryByteBuf, EngineFuelData> PACKET_CODEC = PacketCodec.tuple(
-                    PacketCodecs.map(HashMap::new, PacketCodecs.registryValue(RegistryKeys.ITEM), PacketCodecs.VAR_INT),
-                    EngineFuelData::fuelCounts,
-                    EngineFuelData::new
+            public static final Map<Item, Integer> EMPTY_MAP = Map.of();
+
+            public EngineFuelData {
+                fuelCounts = Map.copyOf(fuelCounts);
+            }
+
+            public static final Codec<EngineFuelData> CODEC = Codec.unboundedMap(
+                    Registries.ITEM.getCodec(),
+                    Codec.INT
+            ).xmap(
+                    EngineFuelData::new,
+                    EngineFuelData::fuelCounts
             );
+
+            public static final PacketCodec<RegistryByteBuf, EngineFuelData> PACKET_CODEC =
+                    PacketCodec.tuple(
+                            PacketCodecs.map(HashMap::new,
+                                    PacketCodecs.registryValue(RegistryKeys.ITEM),
+                                    PacketCodecs.VAR_INT),
+                            EngineFuelData::fuelCounts,
+                            EngineFuelData::new
+                    );
         }
 
         public static final ComponentKey<FormStateComponent> FORM_STATE =
