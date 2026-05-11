@@ -1,5 +1,6 @@
 package net.scarletvaloria.worldbreaker.index;
 
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -16,6 +17,7 @@ public class WorldbreakerFormManager {
 
         var form = ModComponents.FORM_STATE.get(player);
         if (form.getState() != WorldbreakerState.NORMAL) return;
+        ItemStack oldChest = player.getEquippedStack(EquipmentSlot.CHEST).copy();
 
         if (!player.getInventory().contains(stack -> stack.isOf(ModItems.WORLDBREAKER_ASSEMBLY)))
             return;

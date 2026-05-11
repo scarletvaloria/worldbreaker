@@ -1,5 +1,7 @@
 package net.scarletvaloria.worldbreaker.index;
 
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.ArmorMaterials;
 import net.minecraft.item.Item;
 import net.minecraft.item.ToolMaterials;
 import net.minecraft.registry.Registries;
@@ -41,6 +43,13 @@ public static final Item AURIC_TITANIUM_PLATING = Registry.register(Registries.I
 
     public static final Item PLASMA_CELL = Registry.register(Registries.ITEM, Identifier.of(WorldbreakerProtocol.MOD_ID,
            "plasma_cell"), new Item(new Item.Settings().food(ModFoodComponents.PLASMA_CELL)));
+
+    public static final Item WORLDBREAKER_CHESTPLATE =
+            Registry.register(
+                    Registries.ITEM,
+                    Identifier.of(WorldbreakerProtocol.MOD_ID, "worldbreaker_chestplate"),
+                    new ArmorItem(ArmorMaterials.NETHERITE, ArmorItem.Type.CHESTPLATE, new Item.Settings())
+            );
 
 
 

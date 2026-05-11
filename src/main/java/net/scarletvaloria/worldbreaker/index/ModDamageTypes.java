@@ -26,6 +26,7 @@ public interface ModDamageTypes {
     static DamageSource worldbreaker_death(LivingEntity entity) {
         return entity.getDamageSources().create(WORLDBREAKER_DEATH); }
 
+
     private static RegistryKey<DamageType> of(String name) {
         return RegistryKey.of(RegistryKeys.DAMAGE_TYPE, WorldbreakerProtocol.id(name));
     }

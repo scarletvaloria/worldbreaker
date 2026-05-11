@@ -123,14 +123,13 @@ public class TomahawkItem extends SwordItem implements CustomRiptideEvent {
     @Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
         if (entity instanceof PlayerEntity player && !world.isClient) {
-            if (player.isOnGround() && stack.getOrDefault(ModDataComponents.DASH_CHARGES, 0) == 0) {
+            if (stack.getOrDefault(ModDataComponents.DASH_CHARGES, 0) == 0) {
                 if (!player.getItemCooldownManager().isCoolingDown(this)) {
                     stack.set(ModDataComponents.DASH_CHARGES, 3);
                 }
             }
         }
     }
-
     public static void triggerShockwave(ServerPlayerEntity player, float intensity) {
         ServerWorld world = player.getServerWorld();
 
