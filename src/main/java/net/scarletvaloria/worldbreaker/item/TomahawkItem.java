@@ -1,6 +1,5 @@
 package net.scarletvaloria.worldbreaker.item;
 
-import net.acoyt.acornlib.api.event.CustomRiptideEvent;
 import net.acoyt.acornlib.api.item.CustomHitSoundItem;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
@@ -36,7 +35,7 @@ import net.scarletvaloria.worldbreaker.index.ModSounds;
 import java.util.List;
 import java.util.Optional;
 
-public class TomahawkItem extends SwordItem implements CustomRiptideEvent {
+public class TomahawkItem extends SwordItem {
     public TomahawkItem(Settings settings) {
         super(ToolMaterials.NETHERITE, settings.attributeModifiers(TomahawkItem.createAttributeModifiers()));
     }
@@ -45,7 +44,7 @@ public class TomahawkItem extends SwordItem implements CustomRiptideEvent {
         return AttributeModifiersComponent.builder()
                 .add(
                         EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                        new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 7.0f, EntityAttributeModifier.Operation.ADD_VALUE),
+                        new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 8.0f, EntityAttributeModifier.Operation.ADD_VALUE),
                         AttributeModifierSlot.MAINHAND
                 )
                 .add(
@@ -55,7 +54,7 @@ public class TomahawkItem extends SwordItem implements CustomRiptideEvent {
                 )
                 .add(
                         EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE,
-                        new EntityAttributeModifier(Identifier.ofVanilla("base_entity_interaction_range"), 0.25f, EntityAttributeModifier.Operation.ADD_VALUE),
+                        new EntityAttributeModifier(Identifier.ofVanilla("base_entity_interaction_range"), 0.5f, EntityAttributeModifier.Operation.ADD_VALUE),
                         AttributeModifierSlot.MAINHAND
                 )
                 .build();
@@ -109,7 +108,7 @@ public class TomahawkItem extends SwordItem implements CustomRiptideEvent {
                 if (!player.isCreative()) {
                     int next = charges - 1;
                     stack.set(ModDataComponents.DASH_CHARGES, next);
-                    player.getItemCooldownManager().set(this, next <= 0 ? 100 : 10);
+                    player.getItemCooldownManager().set(this, next <= 0 ? 60 : 10);
                 }
             }
 
@@ -194,10 +193,6 @@ public class TomahawkItem extends SwordItem implements CustomRiptideEvent {
         return 0xFFD700;
     }
 
-    @Override
-    public Optional<Identifier> getRiptideTexture(PlayerEntity playerEntity, ItemStack itemStack) {
-        return Optional.empty();
-    }
     @Override
     public int getEnchantability() {
         return 0;

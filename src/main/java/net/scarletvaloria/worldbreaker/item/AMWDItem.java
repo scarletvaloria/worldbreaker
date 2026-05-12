@@ -107,7 +107,7 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
 
         PlayerEntity player = (PlayerEntity) user;
         ServerWorld serverWorld = (ServerWorld) world;
-        double range = 10.0;
+        double range = 7.0;
 
         HitResult combinedHit = ProjectileUtil.getCollision(
                 player,
@@ -119,7 +119,7 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
                 ? combinedHit.getPos()
                 : player.getCameraPosVec(1.0F).add(player.getRotationVec(1.0F).multiply(range));
 
-        double r = 6.0;
+        double r = 7.0;
         Box shockwaveBox = new Box(
                 impactPoint.x - r, impactPoint.y - r, impactPoint.z - r,
                 impactPoint.x + r, impactPoint.y + r, impactPoint.z + r
@@ -129,7 +129,7 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
 
         for (LivingEntity target : targets) {
             DamageSource launchDamage = world.getDamageSources().create(ModDamageTypes.LAUNCH_KILL, player);
-            target.damage(launchDamage, 12.0f);
+            target.damage(launchDamage, 14.0f);
 
             Vec3d diff = target.getPos().subtract(player.getPos());
             Vec3d horizontalDir = new Vec3d(diff.x, 0, diff.z).normalize();

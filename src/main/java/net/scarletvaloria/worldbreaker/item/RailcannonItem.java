@@ -123,7 +123,7 @@ public class RailcannonItem extends Item {
 
         for (Entity target : world.getOtherEntities(user, damageArea)) {
             if (target instanceof LivingEntity living) {
-                living.damage(beamSource, 30.0F);
+                living.damage(beamSource, 20.0F);
                 living.setOnFireFor(10);
                 if (!living.isAlive()) {
                     world.spawnParticles(ParticleTypes.ELECTRIC_SPARK, living.getX(), living.getY() + 1, living.getZ(), 5, 0.1, 0.1, 0.1, 0);
@@ -131,7 +131,7 @@ public class RailcannonItem extends Item {
             }
         }
         world.playSound(null, pos.getX(), pos.getY(), pos.getZ(), ModSounds.SKYBEAM_HIT, SoundCategory.PLAYERS, 10.0f, 0.5f);
-        user.getItemCooldownManager().set(this, 100);
+        user.getItemCooldownManager().set(this, 80);
     }
 
     @Override

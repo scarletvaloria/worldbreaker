@@ -1,89 +1,88 @@
 package net.scarletvaloria.worldbreaker;
 
+import net.acoyt.acornlib.api.event.CustomRiptideEvent;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import net.scarletvaloria.worldbreaker.index.*;
+import net.scarletvaloria.worldbreaker.item.TomahawkItem;
+
+import java.util.Optional;
 
 public class WorldbreakerProtocolClient implements ClientModInitializer {
 
     private boolean wasActive = false;
-
-    private static final Identifier TEXTURE =
-            Identifier.of(
-                    WorldbreakerProtocol.MOD_ID,
-                    "textures/models/armor/worldbreaker_chestplate.png"
-            );
 
     @Override
     public void onInitializeClient() {
 
         ModParticles.registerParticlesClient();
 
-        registerClientTicks();
+        registerInputPackets();
         registerHud();
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (WorldbreakerClientState.initialized) return;
-
-            WorldbreakerClientState.initialized = true;
+        CustomRiptideEvent.EVENT.register((player, stack) -> {
+            if (stack.getItem() instanceof TomahawkItem) {
+                return Optional.of(Identifier.of(
+                        WorldbreakerProtocol.MOD_ID,
+                        "textures/entity/tomahawk_riptide.png"
+                ));
+            }
+            return Optional.empty();
         });
+
+        ClientTickEvents.END_CLIENT_TICK.register(this::clientTick);
     }
 
+    private void clientTick(MinecraftClient client) {
 
-    private void registerClientTicks() {
+        if (client.player == null) return;
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+        PlayerEntity player = client.player;
 
-            if (client.player == null) return;
+        boolean active =
+                ModComponents.FORM_STATE.get(player).isActive();
 
-            boolean active =
-                    ModComponents.FORM_STATE.get(client.player).isActive();
+        if (active != wasActive) {
+            WorldbreakerClientState.triggerFlash();
+            wasActive = active;
+        }
 
-            if (active != wasActive) {
-                WorldbreakerClientState.triggerFlash();
-                wasActive = active;
+        if (!active) return;
+
+        handleAirSteering(client, player);
+
+    }
+
+    private void handleAirSteering(MinecraftClient client, PlayerEntity player) {
+
+        if (!player.isOnGround()) {
+
+            float speed = 0.05f;
+
+            if (client.options.leftKey.isPressed()) {
+                player.addVelocity(
+                        player.getRotationVector().z * speed,
+                        0,
+                        -player.getRotationVector().x * speed
+                );
             }
 
-            PlayerEntity player = client.player;
-
-            if (ModComponents.FORM_STATE.get(player).isActive()) {
-
-                if (!player.isOnGround()
-                        && client.options.sneakKey.isPressed()) {
-
-                    player.setVelocity(
-                            player.getVelocity().x,
-                            0.05,
-                            player.getVelocity().z
-                    );
-                }
-
-                if (!player.isOnGround()) {
-
-                    float speed = 0.05f;
-
-                    if (client.options.leftKey.isPressed()) {
-
-                        player.addVelocity(
-                                player.getRotationVector().z * speed,
-                                0,
-                                -player.getRotationVector().x * speed
-                        );
-                    }
-
-                    if (client.options.rightKey.isPressed()) {
-
-                        player.addVelocity(
-                                -player.getRotationVector().z * speed,
-                                0,
-                                player.getRotationVector().x * speed
-                        );
-                    }
-                }
+            if (client.options.rightKey.isPressed()) {
+                player.addVelocity(
+                        -player.getRotationVector().z * speed,
+                        0,
+                        player.getRotationVector().x * speed
+                );
             }
-        });
+        }
+    }
+
+    private void registerInputPackets() {
+
     }
 
     private void registerHud() {
@@ -93,8 +92,7 @@ public class WorldbreakerProtocolClient implements ClientModInitializer {
 
                     if (WorldbreakerClientState.flashIntensity <= 0) return;
 
-                    int alpha =
-                            (int)(WorldbreakerClientState.flashIntensity * 255);
+                    int alpha = (int)(WorldbreakerClientState.flashIntensity * 255);
 
                     drawContext.fill(
                             0,

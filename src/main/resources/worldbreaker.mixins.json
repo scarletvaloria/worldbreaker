@@ -6,7 +6,6 @@
 	],
   "client": [
     "AbstractClientPlayerEntityMixin",
-    "ArmorHideMixin",
     "GameRendererAccessor",
     "GameRendererMixin",
     "HeldItemRendererMixin",

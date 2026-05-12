@@ -28,5 +28,8 @@
   "sounds.worldbreaker.amwd_charge_start": "AMWD starts charging",
   "sounds.worldbreaker.amwd_charge_loop": "AMWD charges",
   "sounds.worldbreaker.engine_assimilate": "Wordlbreaker Engine assimilates item",
-  "sounds.worldbreaker.engine_complete": "Wordlbreaker Assembly assembles"
+  "sounds.worldbreaker.engine_complete": "Wordlbreaker Assembly assembles",
+  "category.worldbreaker": "Worldbreaker Protocol",
+  "key.worldbreaker.dash": "Dash",
+  "key.worldbreaker.dive": "Toggle Dive"
 }

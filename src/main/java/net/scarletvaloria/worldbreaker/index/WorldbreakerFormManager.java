@@ -10,6 +10,8 @@ import net.minecraft.scoreboard.Team;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 public class WorldbreakerFormManager {
 
@@ -33,10 +35,57 @@ public class WorldbreakerFormManager {
                 player.playerScreenHandler.getCraftingInput()
         );
 
+        Scoreboard scoreboard = player.getScoreboard();
+
+        Team team = scoreboard.getTeam("worldbreaker_team");
+        if (team == null) {
+            team = scoreboard.addTeam("worldbreaker_team");
+        }
+
+        team.setPrefix(Text.literal("Worldbreaker ").styled(style -> style.withColor(Formatting.WHITE)));
+
+        scoreboard.addScoreHolderToTeam(player.getNameForScoreboard(), team);
+
         player.getAttributeInstance(EntityAttributes.GENERIC_SCALE).setBaseValue(1.25);
         player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(40.0);
         player.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(20.0);
         player.setHealth(40.0f);
+
+        player.addStatusEffect(new StatusEffectInstance(
+                StatusEffects.SPEED,
+                -1,
+                2,
+                false,
+                false,
+                true
+        ));
+
+        player.addStatusEffect(new StatusEffectInstance(
+                StatusEffects.RESISTANCE,
+                -1,
+                0,
+                false,
+                false,
+                true
+        ));
+
+        player.addStatusEffect(new StatusEffectInstance(
+                StatusEffects.FIRE_RESISTANCE,
+                -1,
+                0,
+                false,
+                false,
+                true
+        ));
+
+        player.addStatusEffect(new StatusEffectInstance(
+                StatusEffects.NIGHT_VISION,
+                -1,
+                0,
+                false,
+                false,
+                true
+        ));
 
         player.getInventory().setStack(0, new ItemStack(ModItems.TOMAHAWK));
         player.getInventory().setStack(1, new ItemStack(ModItems.WORLDBREAKER_RAILCANNON));
@@ -48,6 +97,10 @@ public class WorldbreakerFormManager {
         player.getInventory().setStack(8, new ItemStack(ModItems.WORLDBREAKER_ASSEMBLY));
 
         form.setState(WorldbreakerState.WORLDBREAKER);
+
+        player.getAbilities().allowFlying = true;
+        player.getAbilities().setFlySpeed(0.08f);
+        player.sendAbilitiesUpdate();
 
         player.getWorld().playSound(
                 null,
@@ -76,12 +129,15 @@ public class WorldbreakerFormManager {
         player.getAttributeInstance(EntityAttributes.GENERIC_SCALE).setBaseValue(1.0);
         player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(20.0);
         player.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(0.0);
+        player.getAttributeInstance(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE)
+                .setBaseValue(1.0);
 
         player.setHealth(Math.min(player.getHealth(), 20.0f));
 
         player.removeStatusEffect(StatusEffects.SPEED);
         player.removeStatusEffect(StatusEffects.NIGHT_VISION);
         player.removeStatusEffect(StatusEffects.FIRE_RESISTANCE);
+        player.removeStatusEffect(StatusEffects.RESISTANCE);
 
         player.getAbilities().allowFlying = false;
         player.getAbilities().setFlySpeed(0.05f);
