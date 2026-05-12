@@ -100,6 +100,7 @@ public class WorldbreakerFormManager {
         form.setState(WorldbreakerState.WORLDBREAKER);
 
         player.getAbilities().allowFlying = true;
+        player.getAbilities().flying = true;
         player.getAbilities().setFlySpeed(0.08f);
         player.sendAbilitiesUpdate();
 
@@ -118,15 +119,6 @@ public class WorldbreakerFormManager {
         var form = ModComponents.FORM_STATE.get(player);
         if (form.getState() != WorldbreakerState.WORLDBREAKER) return;
 
-        var inv = ModComponents.INVENTORY.get(player);
-
-        inv.restore(player.getInventory());
-
-        if (!inv.getStoredAssembly().isEmpty()) {
-            player.getInventory().insertStack(inv.getStoredAssembly().copy());
-            inv.clearStoredAssembly();
-        }
-
         player.getAttributeInstance(EntityAttributes.GENERIC_SCALE).setBaseValue(1.0);
         player.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(20.0);
         player.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(0.0);
@@ -141,6 +133,7 @@ public class WorldbreakerFormManager {
         player.removeStatusEffect(StatusEffects.RESISTANCE);
 
         player.getAbilities().allowFlying = false;
+        player.getAbilities().flying = false;
         player.getAbilities().setFlySpeed(0.05f);
         player.sendAbilitiesUpdate();
 

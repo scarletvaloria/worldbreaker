@@ -54,7 +54,7 @@ public class TomahawkItem extends SwordItem {
                 )
                 .add(
                         EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE,
-                        new EntityAttributeModifier(Identifier.ofVanilla("base_entity_interaction_range"), 0.5f, EntityAttributeModifier.Operation.ADD_VALUE),
+                        new EntityAttributeModifier(Identifier.ofVanilla("base_entity_interaction_range"), 0.75f, EntityAttributeModifier.Operation.ADD_VALUE),
                         AttributeModifierSlot.MAINHAND
                 )
                 .build();

@@ -109,22 +109,6 @@ public class WorldbreakerProtocol implements ModInitializer {
 
         ServerTickEvents.END_SERVER_TICK.register(WorldbreakerProtocol::serverTick);
 
-        ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
-
-            var oldForm = ModComponents.FORM_STATE.get(oldPlayer);
-
-            if (oldForm.getState() != WorldbreakerState.WORLDBREAKER) {
-                return;
-            }
-
-            var inv = ModComponents.INVENTORY.get(oldPlayer);
-
-            inv.restore(newPlayer.getInventory());
-            inv.clearStoredAssembly();
-
-            WorldbreakerFormManager.revert(newPlayer);
-        });
-
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
 
             if (entity instanceof ServerPlayerEntity player
@@ -132,6 +116,27 @@ public class WorldbreakerProtocol implements ModInitializer {
                     && DIVING_PLAYERS.contains(player.getUuid())) {
                 return false;
             }
+
+            return true;
+        });
+
+        ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
+
+            if (!(entity instanceof ServerPlayerEntity player)) {
+                return true;
+            }
+
+            var form = ModComponents.FORM_STATE.get(player);
+
+            if (form.getState() != WorldbreakerState.WORLDBREAKER) {
+                return true;
+            }
+
+            var inv = ModComponents.INVENTORY.get(player);
+
+            player.getInventory().clear();
+            inv.restore(player.getInventory());
+            WorldbreakerFormManager.revert(player);
 
             return true;
         });
