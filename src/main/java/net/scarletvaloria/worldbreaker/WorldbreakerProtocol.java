@@ -2,11 +2,14 @@ package net.scarletvaloria.worldbreaker;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
@@ -16,9 +19,7 @@ import net.scarletvaloria.worldbreaker.item.RailcannonItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static net.scarletvaloria.worldbreaker.item.TomahawkItem.triggerShockwave;
 
@@ -29,6 +30,10 @@ public class WorldbreakerProtocol implements ModInitializer {
 
     public static final Set<UUID> DIVING_PLAYERS = new HashSet<>();
     public static final Set<UUID> AIRBORNE_DIVING_PLAYERS = new HashSet<>();
+
+    public static final Set<UUID> DASH_STATE = new HashSet<>();
+    public static final Map<UUID, Integer> DASH_TIMER = new HashMap<>();
+    public static final Set<UUID> DASH_FLIGHT_LOCK = new HashSet<>();
     public static final Set<UUID> DASH_IMMUNITY = new HashSet<>();
 
     public static Identifier id(String path) {
@@ -50,17 +55,17 @@ public class WorldbreakerProtocol implements ModInitializer {
         PayloadTypeRegistry.playC2S().register(DiveTogglePacket.ID, DiveTogglePacket.CODEC);
         PayloadTypeRegistry.playC2S().register(MarkerPacket.ID, MarkerPacket.CODEC);
 
-        ServerPlayNetworking.registerGlobalReceiver(DashPacket.ID, (payload, ctx) -> {
-            ctx.server().execute(() ->
-                    WorldbreakerFlightController.tryDash(ctx.player())
-            );
-        });
+        ServerPlayNetworking.registerGlobalReceiver(DashPacket.ID, (payload, ctx) ->
+                ctx.server().execute(() ->
+                        WorldbreakerFlightController.tryDash(ctx.player())
+                )
+        );
 
-        ServerPlayNetworking.registerGlobalReceiver(DiveTogglePacket.ID, (payload, ctx) -> {
-            ctx.server().execute(() ->
-                    WorldbreakerDiveSystem.toggle(ctx.player())
-            );
-        });
+        ServerPlayNetworking.registerGlobalReceiver(DiveTogglePacket.ID, (payload, ctx) ->
+                ctx.server().execute(() ->
+                        WorldbreakerDiveSystem.toggle(ctx.player())
+                )
+        );
 
         ServerPlayNetworking.registerGlobalReceiver(MarkerPacket.ID, (payload, ctx) -> {
             ctx.server().execute(() -> {
@@ -104,31 +109,48 @@ public class WorldbreakerProtocol implements ModInitializer {
 
         ServerTickEvents.END_SERVER_TICK.register(WorldbreakerProtocol::serverTick);
 
+        ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
+
+            var oldForm = ModComponents.FORM_STATE.get(oldPlayer);
+
+            if (oldForm.getState() != WorldbreakerState.WORLDBREAKER) {
+                return;
+            }
+
+            var inv = ModComponents.INVENTORY.get(oldPlayer);
+
+            inv.restore(newPlayer.getInventory());
+            inv.clearStoredAssembly();
+
+            WorldbreakerFormManager.revert(newPlayer);
+        });
+
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
 
             if (entity instanceof ServerPlayerEntity player
                     && source.isOf(DamageTypes.FALL)
                     && DIVING_PLAYERS.contains(player.getUuid())) {
-
                 return false;
             }
 
             return true;
         });
     }
-    private static void serverTick(net.minecraft.server.MinecraftServer server) {
+
+    private static void serverTick(MinecraftServer server) {
 
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
 
-            UUID uuid = player.getUuid();
-            if (DIVING_PLAYERS.contains(uuid)) {
+            UUID id = player.getUuid();
+
+            if (DIVING_PLAYERS.contains(id)) {
 
                 if (!player.isOnGround()) {
-                    AIRBORNE_DIVING_PLAYERS.add(uuid);
+                    AIRBORNE_DIVING_PLAYERS.add(id);
                     continue;
                 }
 
-                if (AIRBORNE_DIVING_PLAYERS.contains(uuid)) {
+                if (AIRBORNE_DIVING_PLAYERS.contains(id)) {
 
                     float fallDist = player.fallDistance;
 
@@ -137,12 +159,13 @@ public class WorldbreakerProtocol implements ModInitializer {
                     }
 
                     player.fallDistance = 0;
-                    DIVING_PLAYERS.remove(uuid);
-                    AIRBORNE_DIVING_PLAYERS.remove(uuid);
+                    DIVING_PLAYERS.remove(id);
+                    AIRBORNE_DIVING_PLAYERS.remove(id);
                 }
             }
 
             WorldbreakerAbilitySystem.tick(player);
+            WorldbreakerDiveSystem.tick(player);
             WorldbreakerFlightController.tick(player);
         }
     }

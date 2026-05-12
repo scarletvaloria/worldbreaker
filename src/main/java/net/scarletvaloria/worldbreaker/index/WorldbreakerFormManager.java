@@ -17,6 +17,7 @@ public class WorldbreakerFormManager {
 
     public static void transform(ServerPlayerEntity player) {
 
+
         var form = ModComponents.FORM_STATE.get(player);
         if (form.getState() != WorldbreakerState.NORMAL) return;
         ItemStack oldChest = player.getEquippedStack(EquipmentSlot.CHEST).copy();
@@ -91,8 +92,8 @@ public class WorldbreakerFormManager {
         player.getInventory().setStack(1, new ItemStack(ModItems.WORLDBREAKER_RAILCANNON));
         player.getInventory().setStack(2, new ItemStack(ModItems.AMWD));
 
-        player.getInventory().setStack(3, new ItemStack(ModItems.PLASMA_CELL, 64));
-        player.getInventory().setStack(4, new ItemStack(ModItems.PLASMA_CELL, 64));
+        player.getInventory().setStack(6, new ItemStack(ModItems.PLASMA_CELL, 64));
+        player.getInventory().setStack(7, new ItemStack(ModItems.PLASMA_CELL, 64));
 
         player.getInventory().setStack(8, new ItemStack(ModItems.WORLDBREAKER_ASSEMBLY));
 
