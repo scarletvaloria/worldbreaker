@@ -5,18 +5,16 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.scarletvaloria.worldbreaker.index.WorldbreakerFormManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.damage.DamageTypes;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.scarletvaloria.worldbreaker.index.WorldbreakerCombatHandler;
 import net.scarletvaloria.worldbreaker.index.*;
 import net.scarletvaloria.worldbreaker.item.RailcannonItem;
 import org.slf4j.Logger;
@@ -54,61 +52,72 @@ public class WorldbreakerProtocol implements ModInitializer {
         ModItems.registerModItems();
         ModItemGroups.registerItemGroups();
 
+        registerNetworking();
+        registerEvents();
+
+        ServerTickEvents.END_SERVER_TICK.register(WorldbreakerProtocol::serverTick);
+    }
+
+    private void registerNetworking() {
+
         PayloadTypeRegistry.playC2S().register(DashPacket.ID, DashPacket.CODEC);
         PayloadTypeRegistry.playC2S().register(DiveTogglePacket.ID, DiveTogglePacket.CODEC);
         PayloadTypeRegistry.playC2S().register(MarkerPacket.ID, MarkerPacket.CODEC);
 
-        ServerPlayNetworking.registerGlobalReceiver(DashPacket.ID, (payload, ctx) ->
-                ctx.server().execute(() ->
+        ServerPlayNetworking.registerGlobalReceiver(DashPacket.ID,
+                (payload, ctx) -> ctx.server().execute(() ->
                         WorldbreakerFlightController.tryDash(ctx.player())
                 )
         );
 
-        ServerPlayNetworking.registerGlobalReceiver(DiveTogglePacket.ID, (payload, ctx) ->
-                ctx.server().execute(() ->
+        ServerPlayNetworking.registerGlobalReceiver(DiveTogglePacket.ID,
+                (payload, ctx) -> ctx.server().execute(() ->
                         WorldbreakerDiveSystem.toggle(ctx.player())
                 )
         );
 
-        ServerPlayNetworking.registerGlobalReceiver(MarkerPacket.ID, (payload, ctx) -> {
-            ctx.server().execute(() -> {
+        ServerPlayNetworking.registerGlobalReceiver(MarkerPacket.ID,
+                (payload, ctx) -> ctx.server().execute(() -> {
 
-                ServerPlayerEntity player = ctx.player();
-                ItemStack stack = player.getMainHandStack();
+                    ServerPlayerEntity player = ctx.player();
+                    ItemStack stack = player.getMainHandStack();
 
-                if (!(stack.getItem() instanceof RailcannonItem railItem)) return;
+                    if (!(stack.getItem() instanceof RailcannonItem railItem)) return;
 
-                if (stack.contains(ModComponents.MARKER_POS)) {
+                    if (stack.contains(ModComponents.MARKER_POS)) {
 
-                    railItem.fireSkyBeam(
-                            player.getServerWorld(),
-                            player,
-                            stack.get(ModComponents.MARKER_POS),
-                            stack
-                    );
+                        railItem.fireSkyBeam(
+                                player.getServerWorld(),
+                                player,
+                                stack.get(ModComponents.MARKER_POS),
+                                stack
+                        );
 
-                    stack.remove(ModComponents.MARKER_POS);
+                        stack.remove(ModComponents.MARKER_POS);
 
-                } else {
+                    } else {
 
-                    stack.set(ModComponents.MARKER_POS, payload.pos());
+                        stack.set(ModComponents.MARKER_POS, payload.pos());
 
-                    player.sendMessage(
-                            Text.literal("§e§lTARGET ACQUIRED: §f" + payload.pos().toShortString()),
-                            true
-                    );
+                        player.sendMessage(
+                                Text.literal("§e§lTARGET ACQUIRED: §f" + payload.pos().toShortString()),
+                                true
+                        );
 
-                    player.getServerWorld().playSound(
-                            null,
-                            payload.pos(),
-                            ModSounds.LOCK_ON,
-                            SoundCategory.PLAYERS,
-                            1.0f,
-                            1.0f
-                    );
-                }
-            });
-        });
+                        player.getServerWorld().playSound(
+                                null,
+                                payload.pos(),
+                                ModSounds.LOCK_ON,
+                                SoundCategory.PLAYERS,
+                                1.0f,
+                                1.0f
+                        );
+                    }
+                })
+        );
+    }
+
+    private void registerEvents() {
 
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
 
@@ -136,9 +145,11 @@ public class WorldbreakerProtocol implements ModInitializer {
             }
         });
 
-        ServerTickEvents.END_SERVER_TICK.register(WorldbreakerProtocol::serverTick);
-
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
+
+            if (entity instanceof ServerPlayerEntity player) {
+                WorldbreakerCombatHandler.onDamage(player, source, amount);
+            }
 
             if (entity instanceof ServerPlayerEntity player
                     && source.isOf(DamageTypes.FALL)
@@ -200,6 +211,7 @@ public class WorldbreakerProtocol implements ModInitializer {
             WorldbreakerAbilitySystem.tick(player);
             WorldbreakerDiveSystem.tick(player);
             WorldbreakerFlightController.tick(player);
+            WorldbreakerCombatHandler.tick(player);
         }
     }
 }

@@ -15,6 +15,47 @@ import net.minecraft.util.Formatting;
 
 public class WorldbreakerFormManager {
 
+    public static void tick(ServerPlayerEntity player) {
+
+        var form = ModComponents.FORM_STATE.get(player);
+        if (form.getState() != WorldbreakerState.WORLDBREAKER) return;
+
+        applyGraviticLockdown(player);
+    }
+
+    private static void applyGraviticLockdown(ServerPlayerEntity player) {
+
+        double radius = 6.0;
+
+        var world = player.getWorld();
+
+        var entities = world.getEntitiesByClass(
+                net.minecraft.entity.LivingEntity.class,
+                player.getBoundingBox().expand(radius),
+                e -> e != player
+        );
+
+        for (var target : entities) {
+
+            if (target.isOnGround()) continue;
+
+            var vel = target.getVelocity();
+
+            double x = vel.x * 0.85;
+            double z = vel.z * 0.85;
+            double y = vel.y;
+
+            if (y < -0.2) {
+                y *= 0.55;
+            }
+
+            target.setVelocity(x, y, z);
+            target.velocityModified = true;
+
+            target.addVelocity(0, -0.03, 0);
+        }
+    }
+
     public static void onRespawn(ServerPlayerEntity player) {
 
         player.getAttributeInstance(EntityAttributes.GENERIC_SCALE).setBaseValue(1.25);

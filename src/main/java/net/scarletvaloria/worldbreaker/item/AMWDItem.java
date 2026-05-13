@@ -111,28 +111,23 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
         PlayerEntity player = (PlayerEntity) user;
         ServerWorld serverWorld = (ServerWorld) world;
 
-        double range = 7.0;
+        double radius = 6.0;
 
-        HitResult combinedHit = ProjectileUtil.getCollision(
-                player,
-                e -> !e.isSpectator() && e.canHit(),
-                range
-        );
+        Vec3d center = player.getPos();
 
-        Vec3d impactPoint = (combinedHit != null && combinedHit.getType() != HitResult.Type.MISS)
-                ? combinedHit.getPos()
-                : player.getCameraPosVec(1.0F).add(player.getRotationVec(1.0F).multiply(range));
-
-        double r = 7.0;
         Box shockwaveBox = new Box(
-                impactPoint.x - r, impactPoint.y - r, impactPoint.z - r,
-                impactPoint.x + r, impactPoint.y + r, impactPoint.z + r
+                center.x - radius,
+                center.y - radius,
+                center.z - radius,
+                center.x + radius,
+                center.y + radius,
+                center.z + radius
         );
 
         List<LivingEntity> targets = world.getEntitiesByClass(
                 LivingEntity.class,
                 shockwaveBox,
-                e -> e != player
+                e -> e != player && e.squaredDistanceTo(player) <= (radius * radius)
         );
 
         for (LivingEntity target : targets) {
