@@ -14,12 +14,14 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
 import net.scarletvaloria.worldbreaker.index.ModDamageTypes;
+import net.scarletvaloria.worldbreaker.index.ModDataComponents;
 import net.scarletvaloria.worldbreaker.index.ModSounds;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.HitResult;
@@ -81,6 +83,10 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
+        boolean active = stack.getOrDefault(ModDataComponents.GRAVITY_ACTIVE, false);
+        if (active) {
+            return UseAction.BLOCK;
+        }
         return UseAction.BOW;
     }
 
@@ -91,10 +97,43 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+
         ItemStack stack = user.getStackInHand(hand);
 
-        if (user.getItemCooldownManager().isCoolingDown(stack.getItem())) {
-            return TypedActionResult.fail(stack);
+        if (world.isClient) return TypedActionResult.pass(stack);
+
+        if (user.isSneaking()) {
+
+            if (user.getItemCooldownManager().isCoolingDown(stack.getItem())) {
+                return TypedActionResult.fail(stack);
+            }
+
+            boolean active = stack.getOrDefault(ModDataComponents.GRAVITY_ACTIVE, false);
+
+            if (active) return TypedActionResult.fail(stack);
+
+            stack.set(ModDataComponents.GRAVITY_ACTIVE, true);
+            stack.set(ModDataComponents.GRAVITY_TIMER, 200);
+
+            user.getItemCooldownManager().set(stack.getItem(), 0);
+
+            user.sendMessage(
+                    Text.literal("§bGravitic Domain: ACTIVE"),
+                    true
+            );
+
+            world.playSound(
+                    null,
+                    user.getX(),
+                    user.getY(),
+                    user.getZ(),
+                    ModSounds.AMWD_CHARGE_START,
+                    SoundCategory.PLAYERS,
+                    1.0f,
+                    0.8f
+            );
+
+            return TypedActionResult.success(stack);
         }
 
         user.setCurrentHand(hand);
@@ -132,7 +171,7 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
 
         for (LivingEntity target : targets) {
             DamageSource launchDamage = world.getDamageSources().create(ModDamageTypes.LAUNCH_KILL, player);
-            target.damage(launchDamage, 18.0f);
+            target.damage(launchDamage, 15.0f);
 
             Vec3d diff = target.getPos().subtract(player.getPos());
             Vec3d horizontalDir = new Vec3d(diff.x, 0, diff.z).normalize();

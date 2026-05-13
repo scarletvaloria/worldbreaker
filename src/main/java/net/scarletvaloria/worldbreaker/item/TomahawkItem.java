@@ -142,7 +142,7 @@ public class TomahawkItem extends SwordItem {
         DamageSource shockwaveSource = new DamageSource(shockwaveEntry, player);
 
         double radius = 10.0;
-        float damage = 2.0f + (intensity * 0.5f);
+        float damage = 2.0f + (intensity * 0.2f);
         double knockbackStrength = 5;
 
         Box box = player.getBoundingBox().expand(radius, 3.0, radius);

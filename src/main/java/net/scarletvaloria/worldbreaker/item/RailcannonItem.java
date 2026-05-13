@@ -92,7 +92,7 @@ public class RailcannonItem extends Item {
 
             if (entityHit != null) {
                 Entity target = entityHit.getEntity();
-                target.damage(laserSource, 6.0F);
+                target.damage(laserSource, 1.0F);
                 target.setOnFireFor(3);
                 this.spawnLaserParticles((ServerWorld)world, start, entityHit.getPos());
             } else {
@@ -123,7 +123,7 @@ public class RailcannonItem extends Item {
 
         for (Entity target : world.getOtherEntities(user, damageArea)) {
             if (target instanceof LivingEntity living) {
-                living.damage(beamSource, 25.0F);
+                living.damage(beamSource, 20.0F);
                 living.setOnFireFor(10);
                 if (!living.isAlive()) {
                     world.spawnParticles(ParticleTypes.ELECTRIC_SPARK, living.getX(), living.getY() + 1, living.getZ(), 5, 0.1, 0.1, 0.1, 0);
@@ -216,7 +216,7 @@ public class RailcannonItem extends Item {
 
         for (double i = 2.0; i < dist; i += 2.0) {
             Vec3d p = start.add(dir.multiply(i));
-            sw.spawnParticles(ParticleTypes.END_ROD, p.x, p.y, p.z, 1, 0, 0, 0, 0);
+            sw.spawnParticles(ParticleTypes.ELECTRIC_SPARK, p.x, p.y, p.z, 1, 0, 0, 0, 0);
         }
     }
     @Override

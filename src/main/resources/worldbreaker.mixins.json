@@ -12,7 +12,6 @@
     "HeldItemRendererMixin",
     "ItemRendererMixin",
     "LivingEntityFallMixin",
-    "LivingEntityMixin",
     "ModelLoaderMixin",
     "PlayerEntityRendererMixin",
     "SoundSystemMixin"

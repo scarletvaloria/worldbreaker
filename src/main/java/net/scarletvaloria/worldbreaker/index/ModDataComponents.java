@@ -18,6 +18,38 @@ public class ModDataComponents {
                             .build()
             );
 
+    public static final ComponentType<Boolean> GRAVITY_ACTIVE =
+            Registry.register(Registries.DATA_COMPONENT_TYPE,
+                    Identifier.of(WorldbreakerProtocol.MOD_ID, "gravity_active"),
+                    ComponentType.<Boolean>builder()
+                            .codec(Codec.BOOL)
+                            .build()
+            );
+
+    public static final ComponentType<Integer> GRAVITY_TIMER =
+            Registry.register(Registries.DATA_COMPONENT_TYPE,
+                    Identifier.of(WorldbreakerProtocol.MOD_ID, "gravity_timer"),
+                    ComponentType.<Integer>builder()
+                            .codec(Codec.INT)
+                            .build()
+            );
+
+    public static final ComponentType<Boolean> GRAVITY_MODE =
+            Registry.register(Registries.DATA_COMPONENT_TYPE,
+                    Identifier.of(WorldbreakerProtocol.MOD_ID, "gravity_mode"),
+                    ComponentType.<Boolean>builder()
+                            .codec(Codec.BOOL)
+                            .build()
+            );
+
+    public static final ComponentType<Double> GRAVITY_RADIUS =
+            Registry.register(Registries.DATA_COMPONENT_TYPE,
+                    Identifier.of(WorldbreakerProtocol.MOD_ID, "gravity_radius"),
+                    ComponentType.<Double>builder()
+                            .codec(Codec.DOUBLE)
+                            .build()
+            );
+
     public static final ComponentType<Integer> DASH_CHARGES =
             Registry.register(Registries.DATA_COMPONENT_TYPE,
                     Identifier.of(WorldbreakerProtocol.MOD_ID, "dash_charges"),
