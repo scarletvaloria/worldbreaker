@@ -1,5 +1,6 @@
 package net.scarletvaloria.worldbreaker.item;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -11,6 +12,7 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import net.scarletvaloria.worldbreaker.index.ModComponents;
 import net.scarletvaloria.worldbreaker.index.WorldbreakerFormManager;
+import net.scarletvaloria.worldbreaker.index.WorldbreakerState;
 
 import java.util.UUID;
 
@@ -48,5 +50,29 @@ public class WorldbreakerAssemblyItem extends Item {
 
         return TypedActionResult.pass(stack);
     }
+    @Override
+    public boolean hasGlint(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public boolean isItemBarVisible(ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+
+        if (entity instanceof PlayerEntity player && !world.isClient) {
+
+            var form = ModComponents.FORM_STATE.get(player);
+
+            if (form.getState() != WorldbreakerState.WORLDBREAKER
+                    && form.getState() != WorldbreakerState.NORMAL) {
+                return;
+            }
+        }
+    }
+
 }
 

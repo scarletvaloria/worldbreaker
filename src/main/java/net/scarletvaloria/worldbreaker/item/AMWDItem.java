@@ -21,8 +21,6 @@ import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
 import net.scarletvaloria.worldbreaker.index.ModDamageTypes;
 import net.scarletvaloria.worldbreaker.index.ModSounds;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -30,7 +28,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Box;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.sound.SoundCategory;
 import net.scarletvaloria.worldbreaker.index.ModStatusEffects;
 
 import java.util.List;
@@ -94,8 +91,14 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        ItemStack stack = user.getStackInHand(hand);
+
+        if (user.getItemCooldownManager().isCoolingDown(stack.getItem())) {
+            return TypedActionResult.fail(stack);
+        }
+
         user.setCurrentHand(hand);
-        return TypedActionResult.consume(user.getStackInHand(hand));
+        return TypedActionResult.consume(stack);
     }
 
     @Override
@@ -107,6 +110,7 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
 
         PlayerEntity player = (PlayerEntity) user;
         ServerWorld serverWorld = (ServerWorld) world;
+
         double range = 7.0;
 
         HitResult combinedHit = ProjectileUtil.getCollision(
@@ -125,11 +129,15 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
                 impactPoint.x + r, impactPoint.y + r, impactPoint.z + r
         );
 
-        List<LivingEntity> targets = world.getEntitiesByClass(LivingEntity.class, shockwaveBox, e -> e != player);
+        List<LivingEntity> targets = world.getEntitiesByClass(
+                LivingEntity.class,
+                shockwaveBox,
+                e -> e != player
+        );
 
         for (LivingEntity target : targets) {
             DamageSource launchDamage = world.getDamageSources().create(ModDamageTypes.LAUNCH_KILL, player);
-            target.damage(launchDamage, 14.0f);
+            target.damage(launchDamage, 18.0f);
 
             Vec3d diff = target.getPos().subtract(player.getPos());
             Vec3d horizontalDir = new Vec3d(diff.x, 0, diff.z).normalize();
@@ -142,11 +150,30 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
             target.velocityDirty = true;
 
             world.playSound(null, target.getX(), target.getY(), target.getZ(),
-                    ModSounds.WORLDBREAKER_SHOCKWAVE, SoundCategory.PLAYERS, 1.5f, 1.2f);
+                    ModSounds.WORLDBREAKER_SHOCKWAVE,
+                    SoundCategory.PLAYERS,
+                    1.5f,
+                    1.2f
+            );
 
-            serverWorld.spawnParticles(ParticleTypes.SONIC_BOOM, target.getX(), target.getY() + 1.0, target.getZ(), 1, 0, 0, 0, 0);
-            target.addStatusEffect(new StatusEffectInstance(ModStatusEffects.CONCUSSED, 200, 0));
+            serverWorld.spawnParticles(
+                    ParticleTypes.SONIC_BOOM,
+                    target.getX(),
+                    target.getY() + 1.0,
+                    target.getZ(),
+                    1,
+                    0,
+                    0,
+                    0,
+                    0
+            );
+
+            target.addStatusEffect(
+                    new StatusEffectInstance(ModStatusEffects.CONCUSSED, 200, 0)
+            );
         }
+
+        player.getItemCooldownManager().set(stack.getItem(), 120);
     }
 
 

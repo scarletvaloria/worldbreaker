@@ -92,7 +92,7 @@ public class RailcannonItem extends Item {
 
             if (entityHit != null) {
                 Entity target = entityHit.getEntity();
-                target.damage(laserSource, 4.0F);
+                target.damage(laserSource, 6.0F);
                 target.setOnFireFor(3);
                 this.spawnLaserParticles((ServerWorld)world, start, entityHit.getPos());
             } else {
@@ -118,12 +118,12 @@ public class RailcannonItem extends Item {
             }
         }
 
-        Box damageArea = new Box(pos).expand(radius, 150, radius);
+        Box damageArea = new Box(pos).expand(radius, 175, radius);
         DamageSource beamSource = new DamageSource(world.getRegistryManager().getWrapperOrThrow(RegistryKeys.DAMAGE_TYPE).getOrThrow(ModDamageTypes.SKYBEAM_KILL), user);
 
         for (Entity target : world.getOtherEntities(user, damageArea)) {
             if (target instanceof LivingEntity living) {
-                living.damage(beamSource, 20.0F);
+                living.damage(beamSource, 25.0F);
                 living.setOnFireFor(10);
                 if (!living.isAlive()) {
                     world.spawnParticles(ParticleTypes.ELECTRIC_SPARK, living.getX(), living.getY() + 1, living.getZ(), 5, 0.1, 0.1, 0.1, 0);

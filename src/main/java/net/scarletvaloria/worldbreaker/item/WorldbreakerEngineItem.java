@@ -13,6 +13,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import net.scarletvaloria.worldbreaker.index.ModComponents;
+import net.scarletvaloria.worldbreaker.index.ModDataComponents;
 import net.scarletvaloria.worldbreaker.index.ModItems;
 import net.scarletvaloria.worldbreaker.index.ModSounds;
 
@@ -41,7 +42,7 @@ public class WorldbreakerEngineItem extends Item {
     public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
 
         ModComponents.EngineFuelData data =
-                stack.getOrDefault(ModComponents.FUEL_DATA, new ModComponents.EngineFuelData(Map.of()));
+                stack.getOrDefault(ModDataComponents.FUEL_DATA, new ModComponents.EngineFuelData(Map.of()));
 
         Map<Item, Integer> current = data.fuelCounts();
 
@@ -79,7 +80,7 @@ public class WorldbreakerEngineItem extends Item {
         }
 
         ModComponents.EngineFuelData data =
-                stack.getOrDefault(ModComponents.FUEL_DATA, new ModComponents.EngineFuelData(Map.of()));
+                stack.getOrDefault(ModDataComponents.FUEL_DATA, new ModComponents.EngineFuelData(Map.of()));
 
         Map<Item, Integer> map = new HashMap<>(data.fuelCounts());
 
@@ -93,7 +94,7 @@ public class WorldbreakerEngineItem extends Item {
         offhand.decrement(1);
         map.put(item, current + 1);
 
-        stack.set(ModComponents.FUEL_DATA,
+        stack.set(ModDataComponents.FUEL_DATA,
                 new ModComponents.EngineFuelData(Map.copyOf(map)));
 
         player.setStackInHand(hand, stack);
@@ -118,7 +119,7 @@ public class WorldbreakerEngineItem extends Item {
 
         if (isFullyFueled(map)) {
 
-            stack.set(ModComponents.FUEL_DATA,
+            stack.set(ModDataComponents.FUEL_DATA,
                     new ModComponents.EngineFuelData(Map.of()));
 
             player.setStackInHand(hand, new ItemStack(ModItems.WORLDBREAKER_ASSEMBLY));
@@ -143,11 +144,11 @@ public class WorldbreakerEngineItem extends Item {
     }
 
     private static ModComponents.EngineFuelData getOrCreate(ItemStack stack) {
-        ModComponents.EngineFuelData data = stack.get(ModComponents.FUEL_DATA);
+        ModComponents.EngineFuelData data = stack.get(ModDataComponents.FUEL_DATA);
 
         if (data == null) {
             data = new ModComponents.EngineFuelData(Map.of());
-            stack.set(ModComponents.FUEL_DATA, data);
+            stack.set(ModDataComponents.FUEL_DATA, data);
         }
 
         return data;

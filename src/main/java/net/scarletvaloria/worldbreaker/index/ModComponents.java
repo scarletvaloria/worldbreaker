@@ -45,15 +45,6 @@
                 ComponentType.<BlockPos>builder().codec(BlockPos.CODEC).build()
         );
 
-        public static final ComponentType<EngineFuelData> FUEL_DATA = Registry.register(
-                Registries.DATA_COMPONENT_TYPE,
-                Identifier.of(WorldbreakerProtocol.MOD_ID, "fuel_data"),
-                ComponentType.<EngineFuelData>builder()
-                        .codec(EngineFuelData.CODEC)
-                        .packetCodec(EngineFuelData.PACKET_CODEC)
-                        .build()
-        );
-
         @Override
         public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
             registry.registerForPlayers(FORM_STATE, FormStateComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
@@ -114,12 +105,17 @@
                 storedAssembly = ItemStack.EMPTY;
 
                 for (int i = 0; i < inventory.size(); i++) {
-
                     ItemStack stack = inventory.getStack(i).copy();
+
+                    if (stack.isEmpty()) continue;
+
+                    if (stack.isOf(ModItems.TOMAHAWK)) continue;
+                    if (stack.isOf(ModItems.WORLDBREAKER_RAILCANNON)) continue;
+                    if (stack.isOf(ModItems.AMWD)) continue;
+                    if (stack.isOf(ModItems.PLASMA_CELL)) continue;
 
                     if (stack.isOf(ModItems.WORLDBREAKER_ASSEMBLY)) {
                         storedAssembly = stack.copy();
-                        inventory.setStack(i, ItemStack.EMPTY);
                         continue;
                     }
 
@@ -136,8 +132,14 @@
                 inventory.clear();
 
                 for (int i = 0; i < savedInventory.size(); i++) {
-                    inventory.setStack(i, savedInventory.get(i).copy());
+                    ItemStack stack = savedInventory.get(i);
+
+                    if (!stack.isEmpty()) {
+                        inventory.setStack(i, stack.copy());
+                    }
                 }
+
+                inventory.markDirty();
 
                 if (!storedAssembly.isEmpty()) {
                     inventory.insertStack(storedAssembly.copy());

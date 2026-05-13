@@ -5,7 +5,10 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
+import net.scarletvaloria.worldbreaker.index.WorldbreakerFormManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.item.ItemStack;
@@ -107,6 +110,32 @@ public class WorldbreakerProtocol implements ModInitializer {
             });
         });
 
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+
+            var form = ModComponents.FORM_STATE.get(newPlayer);
+
+            if (form.getState() == WorldbreakerState.WORLDBREAKER) {
+
+                ItemStack stack = new ItemStack(ModItems.WORLDBREAKER_ASSEMBLY);
+                stack.set(ModDataComponents.WORLDBREAKER_ITEM, true);
+
+                newPlayer.getInventory().insertStack(stack);
+            }
+        });
+
+        ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
+
+            var form = ModComponents.FORM_STATE.get(oldPlayer);
+
+            if (form.getState() == WorldbreakerState.WORLDBREAKER) {
+
+                ItemStack assembly = new ItemStack(ModItems.WORLDBREAKER_ASSEMBLY);
+                assembly.set(ModDataComponents.WORLDBREAKER_ITEM, true);
+
+                newPlayer.getInventory().insertStack(assembly);
+            }
+        });
+
         ServerTickEvents.END_SERVER_TICK.register(WorldbreakerProtocol::serverTick);
 
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> {
@@ -122,21 +151,20 @@ public class WorldbreakerProtocol implements ModInitializer {
 
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) -> {
 
-            if (!(entity instanceof ServerPlayerEntity player)) {
-                return true;
-            }
+            if (!(entity instanceof ServerPlayerEntity player)) return true;
 
             var form = ModComponents.FORM_STATE.get(player);
 
-            if (form.getState() != WorldbreakerState.WORLDBREAKER) {
-                return true;
+            if (form.getState() == WorldbreakerState.WORLDBREAKER) {
+
+                player.getInventory().remove(
+                        stack -> stack.isOf(ModItems.WORLDBREAKER_ASSEMBLY),
+                        Integer.MAX_VALUE,
+                        player.playerScreenHandler.getCraftingInput()
+                );
+
+                WorldbreakerFormManager.revert(player);
             }
-
-            var inv = ModComponents.INVENTORY.get(player);
-
-            player.getInventory().clear();
-            inv.restore(player.getInventory());
-            WorldbreakerFormManager.revert(player);
 
             return true;
         });

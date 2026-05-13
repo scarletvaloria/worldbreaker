@@ -6,11 +6,13 @@
 	],
   "client": [
     "AbstractClientPlayerEntityMixin",
+    "CobwebBlockMixin",
     "GameRendererAccessor",
     "GameRendererMixin",
     "HeldItemRendererMixin",
     "ItemRendererMixin",
     "LivingEntityFallMixin",
+    "LivingEntityMixin",
     "ModelLoaderMixin",
     "PlayerEntityRendererMixin",
     "SoundSystemMixin"

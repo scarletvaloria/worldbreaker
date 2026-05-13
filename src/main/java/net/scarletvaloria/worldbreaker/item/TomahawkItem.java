@@ -25,6 +25,7 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.scarletvaloria.worldbreaker.WorldbreakerProtocol;
 import net.scarletvaloria.worldbreaker.index.ModComponents;
@@ -96,6 +97,7 @@ public class TomahawkItem extends SwordItem {
                 float g = -MathHelper.sin(player.getPitch() * 0.017453292F);
                 float h = MathHelper.cos(player.getYaw() * 0.017453292F) * MathHelper.cos(player.getPitch() * 0.017453292F);
 
+                player.setVelocity(Vec3d.ZERO);
                 player.addVelocity(f * 3.0F, g * 3.0F, h * 3.0F);
                 player.velocityModified = true;
 
@@ -139,8 +141,8 @@ public class TomahawkItem extends SwordItem {
 
         DamageSource shockwaveSource = new DamageSource(shockwaveEntry, player);
 
-        double radius = 8.0;
-        float damage = 2.0f + (intensity * 0.2f);
+        double radius = 10.0;
+        float damage = 2.0f + (intensity * 0.5f);
         double knockbackStrength = 5;
 
         Box box = player.getBoundingBox().expand(radius, 3.0, radius);
