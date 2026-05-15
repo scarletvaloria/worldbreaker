@@ -1,9 +1,11 @@
 {
-	"required": true,
-	"package": "net.scarletvaloria.worldbreaker.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-	],
+  "required": true,
+  "package": "net.scarletvaloria.worldbreaker.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ServerPlayerEntityMixin",
+    "PlayerInventoryMixin"
+  ],
   "client": [
     "AbstractClientPlayerEntityMixin",
     "CobwebBlockMixin",
@@ -15,12 +17,11 @@
     "ModelLoaderMixin",
     "PlayerEntityRendererMixin",
     "SoundSystemMixin"
-
   ],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"overwrites": {
-		"requireAnnotations": true
-	}
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
 }

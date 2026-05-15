@@ -1,6 +1,7 @@
 package net.scarletvaloria.worldbreaker.item;
 
 import com.terraformersmc.modmenu.util.mod.Mod;
+import net.scarletvaloria.worldbreaker.index.ModParticles;
 import net.acoyt.acornlib.api.item.CustomHitParticleItem;
 import net.acoyt.acornlib.api.item.CustomHitSoundItem;
 import net.acoyt.acornlib.api.item.KillEffectItem;
@@ -20,6 +21,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
+import net.scarletvaloria.worldbreaker.WorldbreakerProtocol;
 import net.scarletvaloria.worldbreaker.index.ModDamageTypes;
 import net.scarletvaloria.worldbreaker.index.ModDataComponents;
 import net.scarletvaloria.worldbreaker.index.ModSounds;
@@ -33,6 +35,7 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.scarletvaloria.worldbreaker.index.ModStatusEffects;
 
 import java.util.List;
+import java.util.UUID;
 
 public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitParticleItem, KillEffectItem {
     private static final ToolMaterial toolMaterial = ToolMaterials.NETHERITE;
@@ -83,10 +86,6 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        boolean active = stack.getOrDefault(ModDataComponents.GRAVITY_ACTIVE, false);
-        if (active) {
-            return UseAction.BLOCK;
-        }
         return UseAction.BOW;
     }
 
@@ -108,12 +107,14 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
                 return TypedActionResult.fail(stack);
             }
 
-            boolean active = stack.getOrDefault(ModDataComponents.GRAVITY_ACTIVE, false);
+            UUID id = user.getUuid();
 
-            if (active) return TypedActionResult.fail(stack);
+            if (WorldbreakerProtocol.GRAVITY_DOMAIN_ACTIVE.contains(id)) {
+                return TypedActionResult.fail(stack);
+            }
 
-            stack.set(ModDataComponents.GRAVITY_ACTIVE, true);
-            stack.set(ModDataComponents.GRAVITY_TIMER, 200);
+            WorldbreakerProtocol.GRAVITY_DOMAIN_ACTIVE.add(id);
+            WorldbreakerProtocol.GRAVITY_DOMAIN_TIMER.put(id, 200);
 
             user.getItemCooldownManager().set(stack.getItem(), 0);
 
@@ -150,7 +151,7 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
         PlayerEntity player = (PlayerEntity) user;
         ServerWorld serverWorld = (ServerWorld) world;
 
-        double radius = 6.0;
+        double radius = 10.0;
 
         Vec3d center = player.getPos();
 
@@ -171,7 +172,7 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
 
         for (LivingEntity target : targets) {
             DamageSource launchDamage = world.getDamageSources().create(ModDamageTypes.LAUNCH_KILL, player);
-            target.damage(launchDamage, 15.0f);
+            target.damage(launchDamage, 16.0f);
 
             Vec3d diff = target.getPos().subtract(player.getPos());
             Vec3d horizontalDir = new Vec3d(diff.x, 0, diff.z).normalize();
@@ -191,9 +192,9 @@ public class AMWDItem extends AxeItem implements CustomHitSoundItem, CustomHitPa
             );
 
             serverWorld.spawnParticles(
-                    ParticleTypes.SONIC_BOOM,
+                    ModParticles.EXPANDING_RING,
                     target.getX(),
-                    target.getY() + 1.0,
+                    target.getY() + 0.05,
                     target.getZ(),
                     1,
                     0,

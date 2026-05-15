@@ -13,6 +13,7 @@ public interface ModDamageTypes {
     RegistryKey<DamageType> SKYBEAM_KILL = of("skybeam_damage");
     RegistryKey<DamageType> LAUNCH_KILL = of("launch_damage");
     RegistryKey<DamageType> WORLDBREAKER_DEATH = of("worldbreaker_death_damage");
+    RegistryKey<DamageType> ASSEMBLY_REJECTION = of("assembly_rejection_damage");
 
 
     static DamageSource shockwave_kill(LivingEntity entity) {
@@ -25,6 +26,9 @@ public interface ModDamageTypes {
         return entity.getDamageSources().create(LAUNCH_KILL); }
     static DamageSource worldbreaker_death(LivingEntity entity) {
         return entity.getDamageSources().create(WORLDBREAKER_DEATH); }
+    static DamageSource assembly_rejection(LivingEntity entity) {
+        return entity.getDamageSources().create(ASSEMBLY_REJECTION, entity);
+    }
 
 
     private static RegistryKey<DamageType> of(String name) {

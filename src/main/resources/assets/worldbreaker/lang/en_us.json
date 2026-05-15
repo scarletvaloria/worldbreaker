@@ -29,6 +29,8 @@
   "sounds.worldbreaker.amwd_charge_loop": "AMWD charges",
   "sounds.worldbreaker.engine_assimilate": "Wordlbreaker Engine assimilates item",
   "sounds.worldbreaker.engine_complete": "Wordlbreaker Assembly assembles",
+  "death.attack.assembly_rejection_damage": "%1$s was not worthy of the Worldbreaker Assembly",
+  "death.attack.assembly_rejection_damage.player": "%1$s was not worthy of the Worldbreaker Assembly",
   "category.worldbreaker": "Worldbreaker Protocol",
   "key.worldbreaker.dash": "Dash",
   "key.worldbreaker.dive": "Toggle Dive"

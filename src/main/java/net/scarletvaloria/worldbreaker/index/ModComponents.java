@@ -1,183 +1,163 @@
-    package net.scarletvaloria.worldbreaker.index;
+package net.scarletvaloria.worldbreaker.index;
 
-    import net.minecraft.entity.player.PlayerEntity;
-    import net.minecraft.entity.player.PlayerInventory;
-    import net.minecraft.inventory.Inventories;
-    import net.minecraft.item.Item;
-    import net.minecraft.item.ItemStack;
-    import net.minecraft.nbt.NbtCompound;
-    import net.minecraft.network.RegistryByteBuf;
-    import net.minecraft.network.codec.PacketCodec;
-    import net.minecraft.network.codec.PacketCodecs;
-    import net.minecraft.registry.RegistryKeys;
-    import net.minecraft.registry.RegistryWrapper;
-    import net.minecraft.util.collection.DefaultedList;
-    import net.scarletvaloria.worldbreaker.WorldbreakerProtocol;
-    import com.mojang.serialization.Codec;
-    import net.minecraft.component.ComponentType;
-    import net.minecraft.registry.Registries;
-    import net.minecraft.registry.Registry;
-    import net.minecraft.util.Identifier;
-    import net.minecraft.util.math.BlockPos;
-    import org.ladysnake.cca.api.v3.component.Component;
-    import org.ladysnake.cca.api.v3.component.ComponentKey;
-    import org.ladysnake.cca.api.v3.component.ComponentRegistry;
-    import org.ladysnake.cca.api.v3.component.ComponentRegistryV3;
-    import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent;
-    import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
-    import org.ladysnake.cca.api.v3.entity.EntityComponentInitializer;
-    import org.ladysnake.cca.api.v3.entity.RespawnCopyStrategy;
+import net.minecraft.component.ComponentType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventories;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.Registries;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.BlockPos;
 
-    import java.util.HashMap;
-    import java.util.Map;
-    import java.util.function.UnaryOperator;
+import com.mojang.serialization.Codec;
 
-    public class ModComponents implements EntityComponentInitializer {
-        public static void initialize() {
-        }
+import org.ladysnake.cca.api.v3.component.Component;
+import org.ladysnake.cca.api.v3.component.ComponentFactory;
+import org.ladysnake.cca.api.v3.component.ComponentKey;
+import org.ladysnake.cca.api.v3.component.ComponentRegistryV3;
+import org.ladysnake.cca.api.v3.entity.EntityComponentFactoryRegistry;
+import org.ladysnake.cca.api.v3.entity.EntityComponentInitializer;
+import org.ladysnake.cca.api.v3.entity.RespawnCopyStrategy;
 
-        public static final ComponentKey<Component> AMWD_TICKS =
-                ComponentRegistryV3.INSTANCE.getOrCreate(Identifier.of(WorldbreakerProtocol.MOD_ID, "amwd_ticks"), Component.class);
+import net.scarletvaloria.worldbreaker.WorldbreakerProtocol;
 
-        public static final ComponentType<BlockPos> MARKER_POS = Registry.register(
-                Registries.DATA_COMPONENT_TYPE,
-                Identifier.of(WorldbreakerProtocol.MOD_ID, "marker_pos"),
-                ComponentType.<BlockPos>builder().codec(BlockPos.CODEC).build()
-        );
+import java.util.HashMap;
+import java.util.Map;
 
-        @Override
-        public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
-            registry.registerForPlayers(FORM_STATE, FormStateComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
-            registry.registerForPlayers(INVENTORY, InventoryComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
-        }
+public class ModComponents implements EntityComponentInitializer {
 
-        public record EngineFuelData(Map<Item, Integer> fuelCounts) {
+    public static void initialize() {}
 
-            public static final Map<Item, Integer> EMPTY_MAP = Map.of();
 
-            public EngineFuelData {
-                fuelCounts = Map.copyOf(fuelCounts);
-            }
-
-            public static final Codec<EngineFuelData> CODEC = Codec.unboundedMap(
-                    Registries.ITEM.getCodec(),
-                    Codec.INT
-            ).xmap(
-                    EngineFuelData::new,
-                    EngineFuelData::fuelCounts
+    public static final ComponentKey<FormStateComponent> FORM_STATE =
+            ComponentRegistryV3.INSTANCE.getOrCreate(
+                    Identifier.of(WorldbreakerProtocol.MOD_ID, "form_state"),
+                    FormStateComponent.class
             );
 
-            public static final PacketCodec<RegistryByteBuf, EngineFuelData> PACKET_CODEC =
-                    PacketCodec.tuple(
-                            PacketCodecs.map(HashMap::new,
-                                    PacketCodecs.registryValue(RegistryKeys.ITEM),
-                                    PacketCodecs.VAR_INT),
-                            EngineFuelData::fuelCounts,
-                            EngineFuelData::new
-                    );
+
+    public static final ComponentKey<InventoryComponent> INVENTORY =
+            ComponentRegistryV3.INSTANCE.getOrCreate(
+                    Identifier.of(WorldbreakerProtocol.MOD_ID, "inventory"),
+                    InventoryComponent.class
+            );
+
+
+    public static final ComponentType<BlockPos> MARKER_POS = Registry.register(
+            Registries.DATA_COMPONENT_TYPE,
+            Identifier.of(WorldbreakerProtocol.MOD_ID, "marker_pos"),
+            ComponentType.<BlockPos>builder().codec(BlockPos.CODEC).build()
+    );
+
+    public static final ComponentKey<Component> AMWD_TICKS =
+            ComponentRegistryV3.INSTANCE.getOrCreate(
+                    Identifier.of(WorldbreakerProtocol.MOD_ID, "amwd_ticks"),
+                    Component.class
+            );
+
+
+    @Override
+    public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry) {
+
+        registry.registerForPlayers(
+                FORM_STATE,
+                FormStateComponent::new,
+                RespawnCopyStrategy.ALWAYS_COPY
+        );
+
+        registry.registerForPlayers(
+                INVENTORY,
+                (PlayerEntity player) -> new InventoryComponent(),
+                RespawnCopyStrategy.NEVER_COPY
+        );
+    }
+
+    public static class InventoryComponent implements Component {
+
+        private final DefaultedList<ItemStack> savedInventory =
+                DefaultedList.ofSize(41, ItemStack.EMPTY);
+
+        public InventoryComponent() {}
+
+        public void save(PlayerInventory inventory) {
+            for (int i = 0; i < inventory.size(); i++) {
+                savedInventory.set(i, inventory.getStack(i).copy());
+            }
         }
 
-        public static final ComponentKey<FormStateComponent> FORM_STATE =
-                ComponentRegistryV3.INSTANCE.getOrCreate(Identifier.of("worldbreaker", "form_state"), FormStateComponent.class);
+        public void dropSavedInventory(ServerPlayerEntity player) {
 
-        public static final ComponentKey<InventoryComponent> INVENTORY =
-                ComponentRegistryV3.INSTANCE.getOrCreate(Identifier.of(WorldbreakerProtocol.MOD_ID, "inventory"), InventoryComponent.class);
+            for (int i = 0; i < savedInventory.size(); i++) {
 
-        public static class InventoryComponent implements Component {
-            private final DefaultedList<ItemStack> savedInventory = DefaultedList.ofSize(41, ItemStack.EMPTY);
-            private final PlayerEntity player;
-            private ItemStack storedAssembly = ItemStack.EMPTY;
+                ItemStack stack = savedInventory.get(i);
 
-            public ItemStack getStoredAssembly() {
-                return storedAssembly;
+                if (stack.isEmpty()) {
+                    continue;
+                }
+
+                if (stack.isOf(ModItems.TOMAHAWK)
+                        || stack.isOf(ModItems.WORLDBREAKER_RAILCANNON)
+                        || stack.isOf(ModItems.AMWD)
+                        || stack.isOf(ModItems.PLASMA_CELL)
+                        || stack.isOf(ModItems.WORLDBREAKER_ASSEMBLY)) {
+                    continue;
+                }
+
+                player.dropItem(stack.copy(), true, false);
+                savedInventory.set(i, ItemStack.EMPTY);
             }
+        }
 
-            public void clearStoredAssembly() {
-                storedAssembly = ItemStack.EMPTY;
-            }
+        public void restore(PlayerInventory inventory) {
+            inventory.clear();
 
-            public InventoryComponent(PlayerEntity player) {
-                this.player = player;
-            }
-
-            public void save(PlayerInventory inventory) {
-
-                storedAssembly = ItemStack.EMPTY;
-
-                for (int i = 0; i < inventory.size(); i++) {
-                    ItemStack stack = inventory.getStack(i).copy();
-
-                    if (stack.isEmpty()) continue;
-
-                    if (stack.isOf(ModItems.TOMAHAWK)) continue;
-                    if (stack.isOf(ModItems.WORLDBREAKER_RAILCANNON)) continue;
-                    if (stack.isOf(ModItems.AMWD)) continue;
-                    if (stack.isOf(ModItems.PLASMA_CELL)) continue;
-
-                    if (stack.isOf(ModItems.WORLDBREAKER_ASSEMBLY)) {
-                        storedAssembly = stack.copy();
-                        continue;
-                    }
-
-                    savedInventory.set(i, stack);
+            for (int i = 0; i < savedInventory.size(); i++) {
+                ItemStack stack = savedInventory.get(i);
+                if (!stack.isEmpty()) {
+                    inventory.setStack(i, stack.copy());
                 }
             }
 
-            public DefaultedList<ItemStack> getSavedInventory() {
-                return savedInventory;
-            }
+            inventory.markDirty();
+        }
 
-            public void restore(PlayerInventory inventory) {
+        @Override
+        public void readFromNbt(net.minecraft.nbt.NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
+            Inventories.readNbt(nbt, savedInventory, lookup);
+        }
 
-                inventory.clear();
-
-                for (int i = 0; i < savedInventory.size(); i++) {
-                    ItemStack stack = savedInventory.get(i);
-
-                    if (!stack.isEmpty()) {
-                        inventory.setStack(i, stack.copy());
-                    }
-                }
-
-                inventory.markDirty();
-
-                if (!storedAssembly.isEmpty()) {
-                    inventory.insertStack(storedAssembly.copy());
-                    storedAssembly = ItemStack.EMPTY;
-                }
-            }
-
-            @Override
-            public void readFromNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
-                Inventories.readNbt(nbt, savedInventory, lookup);
-
-                if (nbt.contains("Assembly")) {
-                    storedAssembly = ItemStack.fromNbt(lookup, nbt.getCompound("Assembly")).orElse(ItemStack.EMPTY);
-                } else {
-                    storedAssembly = ItemStack.EMPTY;
-                }
-            }
-
-            @Override
-            public void writeToNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
-                Inventories.writeNbt(nbt, savedInventory, lookup);
-
-                if (!storedAssembly.isEmpty()) {
-                    nbt.put("Assembly", storedAssembly.encode(lookup));
-                }
-            }
-
-
-            private static <T> ComponentType<T> register(String id, UnaryOperator<ComponentType.Builder<T>> builderOperator) {
-                return Registry.register(
-                        Registries.DATA_COMPONENT_TYPE,
-                        Identifier.of("worldbreaker", id),
-                        (builderOperator.apply(ComponentType.builder())).build()
-
-                );
-            }
+        @Override
+        public void writeToNbt(net.minecraft.nbt.NbtCompound nbt, RegistryWrapper.WrapperLookup lookup) {
+            Inventories.writeNbt(nbt, savedInventory, lookup);
         }
     }
 
+    public record EngineFuelData(Map<Item, Integer> fuelCounts) {
 
+        public static final Codec<EngineFuelData> CODEC =
+                Codec.unboundedMap(
+                        Registries.ITEM.getCodec(),
+                        Codec.INT
+                ).xmap(EngineFuelData::new, EngineFuelData::fuelCounts);
 
+        public static final PacketCodec<RegistryByteBuf, EngineFuelData> PACKET_CODEC =
+                PacketCodec.tuple(
+                        PacketCodecs.map(
+                                HashMap::new,
+                                PacketCodecs.registryValue(RegistryKeys.ITEM),
+                                PacketCodecs.VAR_INT
+                        ),
+                        EngineFuelData::fuelCounts,
+                        EngineFuelData::new
+                );
+    }
+}

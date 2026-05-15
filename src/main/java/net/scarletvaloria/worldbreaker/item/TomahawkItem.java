@@ -45,7 +45,7 @@ public class TomahawkItem extends SwordItem {
         return AttributeModifiersComponent.builder()
                 .add(
                         EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                        new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 8.0f, EntityAttributeModifier.Operation.ADD_VALUE),
+                        new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 8.5f, EntityAttributeModifier.Operation.ADD_VALUE),
                         AttributeModifierSlot.MAINHAND
                 )
                 .add(
@@ -98,7 +98,7 @@ public class TomahawkItem extends SwordItem {
                 float h = MathHelper.cos(player.getYaw() * 0.017453292F) * MathHelper.cos(player.getPitch() * 0.017453292F);
 
                 player.setVelocity(Vec3d.ZERO);
-                player.addVelocity(f * 3.0F, g * 3.0F, h * 3.0F);
+                player.addVelocity(f * 5.0F, g * 5.0F, h * 5.0F);
                 player.velocityModified = true;
 
                 if (player instanceof ServerPlayerEntity sp) {
@@ -162,21 +162,17 @@ public class TomahawkItem extends SwordItem {
             }
         }
 
-        for (double currentRadius = 0.5; currentRadius <= radius; currentRadius += 1.5) {
-            int density = (int) (currentRadius * 12);
-
-            for (int i = 0; i < density; i++) {
-                double angle = (2 * Math.PI / density) * i;
-                double x = player.getX() + Math.cos(angle) * currentRadius;
-                double z = player.getZ() + Math.sin(angle) * currentRadius;
-
-                if (i % 2 == 0) {
-                    world.spawnParticles(ModParticles.SHOCKWAVE_FLAME, x, player.getY() + 0.2, z, 5, 0.1, 0.1, 0.1, 0.02);
-                } else {
-                    world.spawnParticles(ParticleTypes.SMOKE, x, player.getY() + 0.1, z, 1, 0, 0, 0, 0);
-                }
-            }
-        }
+        world.spawnParticles(
+                ModParticles.EXPANDING_RING,
+                player.getX(),
+                player.getY() + 0.05,
+                player.getZ(),
+                1,
+                0,
+                0,
+                0,
+                0
+        );
 
         world.playSound(null, player.getX(), player.getY(), player.getZ(),
                 ModSounds.WORLDBREAKER_SHOCKWAVE, SoundCategory.PLAYERS, 1.0f, 1.0f);

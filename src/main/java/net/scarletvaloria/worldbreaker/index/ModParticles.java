@@ -10,17 +10,32 @@ import net.minecraft.util.Identifier;
 import net.scarletvaloria.worldbreaker.WorldbreakerProtocol;
 
 public interface ModParticles {
+
     SimpleParticleType SHOCKWAVE_FLAME = FabricParticleTypes.simple(true);
+    SimpleParticleType EXPANDING_RING = FabricParticleTypes.simple(true);
 
     private static void create(String name, SimpleParticleType particle) {
-        Registry.register(Registries.PARTICLE_TYPE, Identifier.of(WorldbreakerProtocol.MOD_ID, name), particle);
+        Registry.register(
+                Registries.PARTICLE_TYPE,
+                Identifier.of(WorldbreakerProtocol.MOD_ID, name),
+                particle
+        );
     }
 
     static void registerParticles() {
         create("shockwave_flame", SHOCKWAVE_FLAME);
+        create("expanding_ring", EXPANDING_RING);
     }
 
     static void registerParticlesClient() {
-        ParticleFactoryRegistry.getInstance().register(SHOCKWAVE_FLAME, FlameParticle.Factory::new);
+        ParticleFactoryRegistry.getInstance().register(
+                SHOCKWAVE_FLAME,
+                FlameParticle.Factory::new
+        );
+
+        ParticleFactoryRegistry.getInstance().register(
+                EXPANDING_RING,
+                ExpandingRingParticle.Factory::new
+        );
     }
 }

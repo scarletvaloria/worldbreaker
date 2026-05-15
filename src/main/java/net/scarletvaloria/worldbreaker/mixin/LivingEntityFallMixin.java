@@ -30,7 +30,5 @@ public abstract class LivingEntityFallMixin {
 
         if (player.isFallFlying()) return;
         if (player.getAbilities().flying) return;
-
-        TomahawkItem.triggerShockwave(player, fallDistance);
     }
 }

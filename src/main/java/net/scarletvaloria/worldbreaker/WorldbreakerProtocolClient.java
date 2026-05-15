@@ -3,12 +3,14 @@ package net.scarletvaloria.worldbreaker;
 import net.acoyt.acornlib.api.event.CustomRiptideEvent;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.scarletvaloria.worldbreaker.index.*;
 import net.scarletvaloria.worldbreaker.item.TomahawkItem;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 import java.util.Optional;
 
@@ -21,8 +23,18 @@ public class WorldbreakerProtocolClient implements ClientModInitializer {
 
         ModParticles.registerParticlesClient();
 
+        ClientPlayNetworking.registerGlobalReceiver(
+                WorldbreakerFlashPacket.ID,
+                (payload, context) -> context.client().execute(
+                        WorldbreakerClientState::triggerFlash
+                )
+        );
+
+        ParticleFactoryRegistry.getInstance().register(ModParticles.EXPANDING_RING, ExpandingRingParticle.Factory::new);
+
         registerInputPackets();
         registerHud();
+
 
         CustomRiptideEvent.EVENT.register((player, stack) -> {
             if (stack.getItem() instanceof TomahawkItem) {
@@ -47,14 +59,12 @@ public class WorldbreakerProtocolClient implements ClientModInitializer {
                 ModComponents.FORM_STATE.get(player).isActive();
 
         if (active != wasActive) {
-            WorldbreakerClientState.triggerFlash();
             wasActive = active;
         }
 
         if (!active) return;
 
         handleAirSteering(client, player);
-
     }
 
     private void handleAirSteering(MinecraftClient client, PlayerEntity player) {
